@@ -1,7 +1,7 @@
 class ArgumentIncongruityWarning(Warning):
 	"""
 	Warning raised when number of type arguments do not match 
-	the function's number of parameters. This could mean both
+	the function's number of parameters. This could mean both 
 	overconstraining and underconstraining the method's parameters.
 	"""
 	def __init__(self, funcname, typecount, argcount):
@@ -19,3 +19,17 @@ class ArgumentIncongruityWarning(Warning):
 
 	def __str__(self):
 		return self.msg
+
+class InvalidArgumentError(TypeError):
+	def __init__(self, parameter, enforcedarg, givenarg):
+		self.error = (
+			f"{givenarg} was enforced on parameter '{parameter}' but found {givenarg}"
+		)
+
+	def __str__(self):
+		return self.error
+
+
+"""
+str was enforced on parameter 'b' but found str
+"""
