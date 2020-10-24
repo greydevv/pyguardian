@@ -14,6 +14,11 @@ class Guard():
 			argspec = getfullargspec(func)
 			passedargs = {k:v for k,v in zip(argspec.args, list(args))}
 			scannedargs = self.__scanargs(passedargs)
+			
+			illegal = self.__validate(scannedargs, passedargs)
+			if illegal:
+				raise(TypeError(f"{illegal[1].__name__} was enforced on parameter '{illegal[0]}' but found {type(illegal[0]).__name__}"))
+
 			typecount = len(list(self.types) + list(self.kwtypes))
 			if typecount != len(argspec.args):
 				warnings.warn(ArgumentIncongruityWarning(func.__name__, typecount, len(argspec.args)), stacklevel=2)
@@ -26,11 +31,11 @@ class Guard():
 		for a,t in specified.items():
 			if isinstance(t, (list, tuple)):
 				if not isinstance(passedargs[a], tuple(t)):
-					return False
+					return (a,tuple(t))
 			else:
 				if not isinstance(passedargs[a], t):
-					return False
-		return True
+					return (a,t)
+		return None
 
 	def __scanargs(self, passedargs):
 		matched = (passedargs.keys() & self.kwtypes.keys())
