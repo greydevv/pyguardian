@@ -10,6 +10,10 @@ class Guard():
 		self.__validate_constructor()
 
 	def __call__(self, func):
+		"""
+		__call__() is implemented to allow the Guard decoration of methods and is therefore
+		called when the decorated method is called.
+		"""
 		@wraps(func)
 		def decor(*args, **kwargs):
 			argspec = getfullargspec(func)
