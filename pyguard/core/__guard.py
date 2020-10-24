@@ -1,7 +1,7 @@
 import warnings
 from inspect import getfullargspec
 from functools import wraps
-from pyguard.errors import ArgumentIncongruityWarning
+from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
 
 class Guard():
 	def __init__(self, *types, **kwtypes):
@@ -14,10 +14,7 @@ class Guard():
 			argspec = getfullargspec(func)
 			passedargs = {k:v for k,v in zip(argspec.args, list(args))}
 			scannedargs = self.__scanargs(passedargs)
-			
-			illegal = self.__validate(scannedargs, passedargs)
-			if illegal:
-				raise(TypeError(f"{illegal[1].__name__} was enforced on parameter '{illegal[0]}' but found {type(illegal[0]).__name__}"))
+			self.__validate(scannedargs, passedargs)
 
 			typecount = len(list(self.types) + list(self.kwtypes))
 			if typecount != len(argspec.args):
@@ -32,9 +29,10 @@ class Guard():
 			if isinstance(t, (list, tuple)):
 				if not isinstance(passedargs[a], tuple(t)):
 					return (a,tuple(t))
+					raise(InvalidArgumentError(a, type(list(t)), type(a)))
 			else:
 				if not isinstance(passedargs[a], t):
-					return (a,t)
+					return (InvalidArgumentError(a, type(t), type(a)))
 		return None
 
 	def __scanargs(self, passedargs):
