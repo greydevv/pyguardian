@@ -1,5 +1,5 @@
-import inspect
 import warnings
+from inspect import getfullargspec
 from functools import wraps
 from pyguard.errors import ArgumentIncongruityWarning
 
@@ -10,25 +10,16 @@ class Guard():
 
 	def __call__(self, func):
 		@wraps(func)
-		def inner(*args, **kwargs):
-			sig = inspect.signature(func)
-			argspec = inspect.getfullargspec(func)
+		def decor(*args, **kwargs):
+			argspec = getfullargspec(func)
 			passedargs = {k:v for k,v in zip(argspec.args, list(args))}
-			passedargs.update(kwargs)
-			print(passedargs)
-
-			# print([param for param in sig.parameters.items()])
-			print({p:None for p, k in sig.parameters.items()})
-			# passedargs = dict(zip(inspect.getfullargspec(func).args, list(args)))
-			# passedargs = dict(zip(inspect.signature(func)))
-			# print(passedargs)
-
-			# scannedargs = self.__scanargs(passedargs)
-			# argcount = len(list(self.types) + list(self.kwtypes.items()))
-			# print(self.__validate(scannedargs, passedargs))
+			scannedargs = self.__scanargs(passedargs)
+			typecount = len(list(self.types) + list(self.kwtypes))
+			if typecount != len(argspec.args):
+				warnings.warn(ArgumentIncongruityWarning(func.__name__, typecount, len(argspec.args)), stacklevel=2)
 
 			return func(*args, **kwargs)
-		return inner
+		return decor
 
 	def __validate(self, scannedargs, passedargs):
 		specified = {a:t for a,t in scannedargs.items() if t is not None}
@@ -62,13 +53,3 @@ class Guard():
 
 
 
-# if argcount != len(passedargs):
-			# 	msg = (
-			# 		f"Enforcing {argcount} type(s) "
-			# 		f"while {len(passedargs)} arguments exist."
-			# 	)
-			# 	warnings.warn(
-			# 		msg,
-			# 		ArgumentIncongruityWarning,
-			# 		stacklevel=2
-			# 	)
