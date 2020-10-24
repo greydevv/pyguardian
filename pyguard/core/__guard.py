@@ -25,7 +25,96 @@ class Guard():
 		return decor
 
 	def __validate_constructor(self):
-		all_types = list(self.types) + list(self.kwtypes)
+		"""
+		__validate_constructor() is implemented to validate the passed *types and **kwtypes of 
+		the Guard class. Valid types for the passed values of *types and **kwtypes are as follows:
+
+		Parameters
+		----------
+		*types   : type, [type]
+		**kwtypes: type, [type]
+
+		Examples
+		--------
+
+
+		
+		Parameters 'a', 'b', and 'c' must be of type 'int', 'int', and 'int', respectively.
+
+		>>> @guard(int, int, int)
+			def foo(a, b, c):
+
+			foo(1, 2, 3)
+
+
+
+		A list of 'type' passed signifies multiple valid types for one parameter. In this case, 
+		parameter 'c' can either be of type 'int' or 'float.'
+
+		>>> @guard(int, int, [int, float])
+			def foo(a, b, c):
+
+			foo(1, 2, 3)
+			foo(1, 2, 3.14159)
+	
+	
+
+		Types passed via keyword is also accepted, given that the keyword matches the name of
+		a parameter that exists in the method's signature.
+
+		>>> @guard(a=int, b=int, c=int)
+			def foo(a, b, c):
+
+			foo(1, 2, 3)
+		
+
+
+		Similarly to the last example, a combination of both positional and keyworded arguments 
+		are able to be passed into the guard constructor and will also support out-of-order 
+		type-enforcement. In this example, 'a=str' enforces that the method's parameter 'a' must be of 
+		type 'str', even though it was specified as a keyword argument that follows multiple  
+		positional arguments. Both 'b' and 'c' will then be enforced to be of type 'int.'
+
+		>>> @guard(int, int, a=str):
+			def foo(a, b, c):
+
+			foo('Hello World!', 1, 2)
+
+
+
+		Only types and lists of types may be passed to the constructor.	When called, this method will raise 
+		an exception: "ValueError: guard constructor not properly called!"
+
+		>>> @guard(int, int, 'foo')
+			def foo(a, b, c):
+
+			foo(1, 2, 3)
+
+
+
+		A warning will be raised when the number of types passed to the guard constructor is larger 
+		than the number of parameters in the method's signature. When the method is called, this warning 
+		is raised: "ArgumentIncongruityWarning: Enforcing 4 types while only 3 arguments exist."
+
+		>>> guard(int, int, int, str)
+			def foo(a, b, c):
+
+			foo(1, 2, 3)
+
+
+
+		Similarly to the last example, a warning will be raised when the number of parameters in 
+		the method's signature is larger than the number of types passed to the guard constructor.
+		When the method is called, this warning is raised:
+		"ArgumentIncongruityWarning: Enforcing only 4 types while 5 arguments exist. Defined method, 
+		test(), may produce unexpected results."
+
+		>>> guard(int, int, int)
+			def foo(a, b, c, d):
+
+			foo(1, 2, 3, 4)
+		"""
+		all_types = list(self.types) + list(self.kwtypes.values())
 		for enforced_type in all_types:
 			if not isinstance(enforced_type, (type, list)):
 				raise(ValueError(f"guard constructor not properly called!"))
