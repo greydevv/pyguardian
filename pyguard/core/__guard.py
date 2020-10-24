@@ -5,6 +5,9 @@ from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
 
 class Guard():
 	def __init__(self, *types, **kwtypes):
+		"""
+		See __validate_constructor() for examples of valid and invalid inputs. 
+		"""
 		self.types = types
 		self.kwtypes = kwtypes
 		self.__validate_constructor()
