@@ -27,17 +27,16 @@ class Guard():
 	def __validate_constructor(self):
 		"""
 		__validate_constructor() is implemented to validate the passed *types and **kwtypes of 
-		the Guard class. Valid types for the passed values of *types and **kwtypes are as follows:
+		the Guard class.
 
 		Parameters
 		----------
 		*types   : type, [type]
 		**kwtypes: type, [type]
 
+
 		Examples
 		--------
-
-
 		
 		Parameters 'a', 'b', and 'c' must be of type 'int', 'int', and 'int', respectively.
 
@@ -70,7 +69,7 @@ class Guard():
 
 
 		Similarly to the last example, a combination of both positional and keyworded arguments 
-		are able to be passed into the guard constructor and will also support out-of-order 
+		are able to be passed into the Guard constructor and will also support out-of-order 
 		type-enforcement. In this example, 'a=str' enforces that the method's parameter 'a' must be of 
 		type 'str', even though it was specified as a keyword argument that follows multiple  
 		positional arguments. Both 'b' and 'c' will then be enforced to be of type 'int.'
@@ -92,7 +91,7 @@ class Guard():
 
 
 
-		A warning will be raised when the number of types passed to the guard constructor is larger 
+		A warning will be raised when the number of types passed to the Guard constructor is larger 
 		than the number of parameters in the method's signature. When the method is called, this warning 
 		is raised: "ArgumentIncongruityWarning: Enforcing 4 types while only 3 arguments exist."
 
@@ -104,9 +103,9 @@ class Guard():
 
 
 		Similarly to the last example, a warning will be raised when the number of parameters in 
-		the method's signature is larger than the number of types passed to the guard constructor.
+		the method's signature is larger than the number of types passed to the Guard constructor.
 		When the method is called, this warning is raised:
-		"ArgumentIncongruityWarning: Enforcing only 4 types while 5 arguments exist. Defined method, 
+		"ArgumentIncongruityWarning: Enforcing only 3 types while 4 arguments exist. Defined method, 
 		test(), may produce unexpected results."
 
 		>>> guard(int, int, int)
@@ -123,9 +122,24 @@ class Guard():
 					raise(ValueError(f"guard constructor not properly called!"))
 
 	def __validate(self, scannedargs, passedargs):
+		"""
+		__validate() is implemented to validate the types of the parameters passed to the method against 
+		the enforced types passed to the Guard constructor. 
+		
+		Examples
+		--------
+
+		If the types of the parameters passed to the method do not match their enforced type, an exception 
+		is raised: 
+		"InvalidArgumentError: Expected parameter "c" to be of type "int" but found "str""
+		>>> @guard(int, int, int)
+			def foo(a, b, c):
+
+			foo(1, 2, 'Hello World!')
+		"""
 		for param, enforced_type in scannedargs.items():
 			if enforced_type is not None:
-			# check if guard() is accepting multile types for one parameter
+			# check if Guard is accepting multile types for one parameter
 				if isinstance(enforced_type, list):
 					# check if type is not of any of the types that were passed as a list
 					if not isinstance(passedargs[param], tuple(enforced_type)):
