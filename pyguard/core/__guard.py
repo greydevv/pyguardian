@@ -150,6 +150,12 @@ class Guard():
 						raise(InvalidArgumentError(param, enforced_type.__name__, type(passedargs[param]).__name__))
 
 	def __scanargs(self, passedargs):
+		"""
+		__scanargs() is implemented for format the arguments and parameters in a way that allows other methods 
+		to use the data easily and efficiently.
+		__scanargs() will return a dictionary of them method's parameters as the keys and the enforced type 
+		on each of those parameters as the value.
+		"""
 		specified_kw = (passedargs.keys() & self.kwtypes.keys())
 		scannedargs = {k:None for k in passedargs}
 		# scan for keywords first
@@ -163,6 +169,7 @@ class Guard():
 				if len(temp) > 0:
 					scannedargs[k] = temp[0]
 					temp.remove(temp[0])
+		print(scannedargs)
 		return scannedargs
 
 	def __allinstance(self, collection, valid_type):
