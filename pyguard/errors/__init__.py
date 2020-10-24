@@ -23,7 +23,7 @@ class ArgumentIncongruityWarning(Warning):
 class InvalidArgumentError(TypeError):
 	def __init__(self, parameter, enforcedarg, givenarg):
 		self.error = (
-			f"{givenarg} was enforced on parameter '{parameter}' but found {givenarg}"
+			f'"{parameter}" was enforced to be of type "{enforcedarg}" (not "{givenarg}")'
 		)
 
 	def __str__(self):

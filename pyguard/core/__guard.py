@@ -25,14 +25,19 @@ class Guard():
 
 	def __validate(self, scannedargs, passedargs):
 		specified = {a:t for a,t in scannedargs.items() if t is not None}
-		for a,t in specified.items():
-			if isinstance(t, (list, tuple)):
-				if not isinstance(passedargs[a], tuple(t)):
-					return (a,tuple(t))
-					raise(InvalidArgumentError(a, type(list(t)), type(a)))
+		print(specified)
+		for param,t in specified.items():
+			# check if guard() is accepting multile types for one parameter
+			if isinstance(t, list):
+				# check if type is not of any of the types that were passed as a list
+				
+				# print(f"Found list: {str(list(t))}")
+				if not isinstance(passedargs[param], tuple(t)):
+					raise(InvalidArgumentError(param, [t.__name__ for t in t], type(param).__name__))
 			else:
-				if not isinstance(passedargs[a], t):
-					return (InvalidArgumentError(a, type(t), type(a)))
+				if not isinstance(passedargs[param], t):
+					raise(InvalidArgumentError(param, t.__name__, type(param).__name__))
+				# print(f"Found singular: {str(t)}")
 		return None
 
 	def __scanargs(self, passedargs):
@@ -51,8 +56,22 @@ class Guard():
 					temp.remove(temp[0])
 		return scannedargs
 
+
 	def __allinstance(self, collection, valid_type):
 		return all(isinstance(item, valid_type) for item in collection)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
