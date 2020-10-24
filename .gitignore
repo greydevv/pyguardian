@@ -1,3 +1,6 @@
+# Build test file (intend to remove before publishing)
+pg_tests.py
+
 # Build folder.
 /build/
 
