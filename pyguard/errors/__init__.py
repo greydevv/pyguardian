@@ -22,7 +22,6 @@ class ArgumentIncongruityWarning(Warning):
 
 class InvalidArgumentError(TypeError):
 	def __init__(self, param, enforced_type, given_type):
-		print(param)
 		self.error = (
 			f'Expected parameter "{param}" to be of type "{enforced_type}" but found "{given_type}"'
 		)
