@@ -21,9 +21,10 @@ class ArgumentIncongruityWarning(Warning):
 		return self.msg
 
 class InvalidArgumentError(TypeError):
-	def __init__(self, parameter, enforcedarg, givenarg):
+	def __init__(self, param, enforced_type, given_type):
+		print(param)
 		self.error = (
-			f'"{parameter}" was enforced to be of type "{enforcedarg}" (not "{givenarg}")'
+			f'Expected parameter "{param}" to be of type "{enforced_type}" but found "{given_type}"'
 		)
 
 	def __str__(self):
