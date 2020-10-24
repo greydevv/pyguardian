@@ -13,7 +13,10 @@ class Guard():
 		def inner(*args, **kwargs):
 			sig = inspect.signature(func)
 			argspec = inspect.getfullargspec(func)
-			print({k:v for k,v in zip(argspec.args, list(args))})
+			passedargs = {k:v for k,v in zip(argspec.args, list(args))}
+			passedargs.update(kwargs)
+			print(passedargs)
+
 			# print([param for param in sig.parameters.items()])
 			print({p:None for p, k in sig.parameters.items()})
 			# passedargs = dict(zip(inspect.getfullargspec(func).args, list(args)))
