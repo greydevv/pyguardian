@@ -49,9 +49,9 @@ class Guard():
 		respectively.
 
 		>>> @guard(int, int, int)
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo(1, 2, 3)
+		>>> foo(1, 2, 3)
 
 
 
@@ -60,10 +60,10 @@ class Guard():
 		'float.'
 
 		>>> @guard(int, int, [int, float])
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo(1, 2, 3)
-			foo(1, 2, 3.14159)
+		>>> foo(1, 2, 3)
+		>>> foo(1, 2, 3.14159)
 	
 	
 
@@ -71,9 +71,9 @@ class Guard():
 		matches the name of a parameter that exists in the method's signature.
 
 		>>> @guard(a=int, b=int, c=int)
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo(1, 2, 3)
+		>>> foo(1, 2, 3)
 		
 
 
@@ -86,9 +86,9 @@ class Guard():
 		to be of type 'int.'
 
 		>>> @guard(int, int, a=str):
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo('Hello World!', 1, 2)
+		>>> foo('Hello World!', 1, 2)
 
 
 
@@ -97,9 +97,9 @@ class Guard():
 		constructor not properly called!"
 
 		>>> @guard(int, int, 'foo')
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo(1, 2, 3)
+		>>> foo(1, 2, 3)
 
 
 
@@ -110,9 +110,9 @@ class Guard():
 		exist."
 
 		>>> guard(int, int, int, str)
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo(1, 2, 3)
+		>>> foo(1, 2, 3)
 
 
 
@@ -124,9 +124,9 @@ class Guard():
 		results."
 
 		>>> guard(int, int, int)
-			def foo(a, b, c, d):
+		>>> def foo(a, b, c, d):
 
-			foo(1, 2, 3, 4)
+		>>> foo(1, 2, 3, 4)
 		"""
 		all_types = list(self._types) + list(self._kwtypes.values())
 		for enforced_type in all_types:
@@ -150,9 +150,9 @@ class Guard():
 		parameter "c" to be of type "int" but found "str""
 
 		>>> @guard(int, int, int)
-			def foo(a, b, c):
+		>>> def foo(a, b, c):
 
-			foo(1, 2, 'Hello World!')
+		>>> foo(1, 2, 'Hello World!')
 		"""
 		for param, enforced_type in scanned_args.items():
 			if enforced_type is not None:
