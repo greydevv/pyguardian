@@ -1,9 +1,9 @@
 class ArgumentIncongruityWarning(Warning):
 	"""
-	ArgumentIncongruityWarning (subclass of Warning) is raised when 
-	number of type arguments do not match the function's number of 
-	parameters. This could mean both enforcing more types than there 
-	are parameters, or vice versa.
+	ArgumentIncongruityWarning (subclass of Warning) is raised when number 
+	of type arguments do not match the function's number of parameters. 
+	This could mean both enforcing more types than there are parameters, or 
+	vice versa.
 	"""
 	def __init__(self, funcname, typecount, argcount):
 		if typecount > argcount:
@@ -23,8 +23,8 @@ class ArgumentIncongruityWarning(Warning):
 
 class InvalidArgumentError(TypeError):
 	"""
-	InvalidArgumentError (subclass of TypeError) is raised when the type of a 
-	value passed to a guarded method does not match the enforced type.
+	InvalidArgumentError (subclass of TypeError) is raised when the type of 
+	a value passed to a guarded method does not match the enforced type.
 	"""
 	def __init__(self, param, enforced_type, given_type):
 		self.error = (
