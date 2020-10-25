@@ -8,8 +8,8 @@ class Guard():
 		"""
 		See __validate_constructor() for examples of valid and invalid inputs. 
 		"""
-		self.types = types
-		self.kwtypes = kwtypes
+		self._types = types
+		self._kwtypes = kwtypes
 		self.__validate_constructor()
 
 	def __call__(self, func):
@@ -20,13 +20,13 @@ class Guard():
 		@wraps(func)
 		def decor(*args, **kwargs):
 			argspec = getfullargspec(func)
-			passedargs = {k:v for k,v in zip(argspec.args, list(args))}
-			scannedargs = self.__scanargs(passedargs)
-			self.__validate(scannedargs, passedargs)
+			passed_args = {k:v for k,v in zip(argspec.args, list(args))}
+			scanned_args = self.__scanargs(passed_args)
+			self.__validate(scanned_args, passed_args)
 
-			typecount = len(list(self.types) + list(self.kwtypes))
-			if typecount != len(argspec.args):
-				warnings.warn(ArgumentIncongruityWarning(func.__name__, typecount, len(argspec.args)), stacklevel=2)
+			type_count = len(list(self._types) + list(self._kwtypes))
+			if type_count != len(argspec.args):
+				warnings.warn(ArgumentIncongruityWarning(func.__name__, type_count, len(argspec.args)), stacklevel=2)
 
 			return func(*args, **kwargs)
 		return decor
@@ -128,7 +128,7 @@ class Guard():
 
 			foo(1, 2, 3, 4)
 		"""
-		all_types = list(self.types) + list(self.kwtypes.values())
+		all_types = list(self._types) + list(self._kwtypes.values())
 		for enforced_type in all_types:
 			if not isinstance(enforced_type, (type, list)):
 				raise(ValueError(f"guard constructor not properly called!"))
@@ -136,7 +136,7 @@ class Guard():
 				if not self.__allinstance(enforced_type, type):
 					raise(ValueError(f"guard constructor not properly called!"))
 
-	def __validate(self, scannedargs, passedargs):
+	def __validate(self, scanned_args, passed_args):
 		"""
 		__validate() is implemented to validate the types of the parameters 
 		passed to the method against the enforced types passed to the Guard 
@@ -154,40 +154,39 @@ class Guard():
 
 			foo(1, 2, 'Hello World!')
 		"""
-		for param, enforced_type in scannedargs.items():
+		for param, enforced_type in scanned_args.items():
 			if enforced_type is not None:
 			# check if Guard is accepting multile types for one parameter
 				if isinstance(enforced_type, list):
 					# check if type is not of any of the types that were passed as a list
-					if not isinstance(passedargs[param], tuple(enforced_type)):
+					if not isinstance(passed_args[param], tuple(enforced_type)):
 						enforced_str = f"[{', '.join([t.__name__ for t in enforced_type])}]"
-						raise(InvalidArgumentError(param, enforced_str, type(passedargs[param]).__name__))
+						raise(InvalidArgumentError(param, enforced_str, type(passed_args[param]).__name__))
 				else:
-					if not isinstance(passedargs[param], enforced_type):
-						raise(InvalidArgumentError(param, enforced_type.__name__, type(passedargs[param]).__name__))
+					if not isinstance(passed_args[param], enforced_type):
+						raise(InvalidArgumentError(param, enforced_type.__name__, type(passed_args[param]).__name__))
 
-	def __scanargs(self, passedargs):
+	def __scanargs(self, passed_args):
 		"""
 		__scanargs() is implemented for format the arguments and parameters in 
 		a way that allows other methods to use the data easily and efficiently. 
 		A dictionary will is returned with the method's parameters as the keys 
 		and the enforced type on each of those parameters as the value.
 		"""
-		specified_kw = (passedargs.keys() & self.kwtypes.keys())
-		scannedargs = {k:None for k in passedargs}
+		specified_kw = (passed_args.keys() & self._kwtypes.keys())
+		scanned_args = {k:None for k in passed_args}
 		# scan for keywords first
-		for k in passedargs:
+		for k in passed_args:
 			if k in specified_kw:
-				scannedargs[k] = self.kwtypes[k]
+				scanned_args[k] = self._kwtypes[k]
 
-		temp = list(self.types)
-		for k in scannedargs:
-			if scannedargs[k] is None:
+		temp = list(self._types)
+		for k in scanned_args:
+			if scanned_args[k] is None:
 				if len(temp) > 0:
-					scannedargs[k] = temp[0]
+					scanned_args[k] = temp[0]
 					temp.remove(temp[0])
-		print(scannedargs)
-		return scannedargs
+		return scanned_args
 
 	def __allinstance(self, collection, valid_type):
 		"""
