@@ -2,6 +2,7 @@ import warnings
 from inspect import getfullargspec, signature
 from functools import wraps
 from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
+from pyguard.core.allinstance import allinstance
 
 class Guard():
 	def __init__(self, *types, **kwtypes):
@@ -133,7 +134,7 @@ class Guard():
 			if not isinstance(enforced_type, (type, list)):
 				raise(ValueError(f"guard constructor not properly called!"))
 			elif isinstance(enforced_type, list):
-				if not self.__allinstance(enforced_type, type):
+				if not allinstance(enforced_type, type):
 					raise(ValueError(f"guard constructor not properly called!"))
 
 	def __validate(self, scanned_args, passed_args):
@@ -187,13 +188,6 @@ class Guard():
 					scanned_args[k] = temp[0]
 					temp.remove(temp[0])
 		return scanned_args
-
-	def __allinstance(self, collection, valid_type):
-		"""
-		__allinstance() is a helper method that checks if every item contained 
-		within a collection are of a specified type.
-		"""
-		return all(isinstance(item, valid_type) for item in collection)
 
 
 
