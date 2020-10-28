@@ -137,6 +137,8 @@ class Guard():
 				if not allinstance(enforced_type, type):
 					raise(ValueError(f"guard constructor not properly called!"))
 
+
+
 	def __validate(self, scanned_args, passed_args):
 		"""
 		__validate() is implemented to validate the types of the parameters 
@@ -155,9 +157,10 @@ class Guard():
 
 		>>> foo(1, 2, 'Hello World!')
 		"""
+
 		for param, enforced_type in scanned_args.items():
 			if enforced_type is not None:
-			# check if Guard is accepting multile types for one parameter
+			# check if Guard is accepting multiple types for one parameter
 				if isinstance(enforced_type, list):
 					# check if type is not of any of the types that were passed as a list
 					if not isinstance(passed_args[param], tuple(enforced_type)):

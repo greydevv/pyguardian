@@ -4,8 +4,3 @@ def allinstance(collection, valid_type):
 		within a collection are of a specified type.
 		"""
 		return all(isinstance(item, valid_type) for item in collection)
-
-
-
-def say():
-	print("hello")
