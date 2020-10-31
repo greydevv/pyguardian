@@ -134,7 +134,7 @@ class Guard():
 			if not isinstance(enforced_type, (type, list)):
 				raise(ValueError(f"guard constructor not properly called!"))
 			elif isinstance(enforced_type, list):
-				if not allinstance(enforced_type, type):
+				if not allinstance(enforced_type, type) or len(enforced_type) == 0:
 					raise(ValueError(f"guard constructor not properly called!"))
 
 
@@ -164,11 +164,10 @@ class Guard():
 				if isinstance(enforced_type, list):
 					# check if type is not of any of the types that were passed as a list
 					if not isinstance(passed_args[param], tuple(enforced_type)):
-						enforced_str = f"[{', '.join([t.__name__ for t in enforced_type])}]"
-						raise(InvalidArgumentError(param, enforced_str, type(passed_args[param]).__name__))
+						raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
 				else:
 					if not isinstance(passed_args[param], enforced_type):
-						raise(InvalidArgumentError(param, enforced_type.__name__, type(passed_args[param]).__name__))
+						raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
 
 	def __scanargs(self, passed_args):
 		"""
@@ -179,11 +178,13 @@ class Guard():
 		"""
 		specified_kw = (passed_args.keys() & self._kwtypes.keys())
 		scanned_args = {k:None for k in passed_args}
+		
 		# scan for keywords first
 		for k in passed_args:
 			if k in specified_kw:
 				scanned_args[k] = self._kwtypes[k]
 
+		# create temporary list to remove 
 		temp = list(self._types)
 		for k in scanned_args:
 			if scanned_args[k] is None:
