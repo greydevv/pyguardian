@@ -27,9 +27,23 @@ class InvalidArgumentError(TypeError):
 	a value passed to a guarded method does not match the enforced type.
 	"""
 	def __init__(self, param, enforced_type, given_type):
+		enforced_str = self.__create_str(enforced_type)
 		self.error = (
-			f"Expected parameter '{param}' to be of type '{enforced_type}' but found '{given_type}'"
+			f"Expected parameter '{param}' to be of type {enforced_str} but found '{given_type}'"
 		)
+
+	def __create_str(self, x):
+		if isinstance(x, list):
+			x = [f"'{i.__name__}'" for i in x]
+			if len(x) == 1:
+				return f"{x[0]}"
+			elif len(x) == 2:
+				return f"{x[0]} or {x[1]}"
+			else:
+				listed = ', '.join([i for i in x[0:-1]])
+				return f"{listed}, or {x[-1]}"
+		else:
+			return s.__name__
 
 	def __str__(self):
 		return self.error
