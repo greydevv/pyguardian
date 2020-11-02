@@ -21,6 +21,7 @@ class Guard():
 		@wraps(func)
 		def decor(*args, **kwargs):
 			argspec = getfullargspec(func)
+			print(argspec)
 			passed_args = {k:v for k,v in zip(argspec.args, list(args))}
 			scanned_args = self.__scanargs(passed_args)
 			self.__validate(scanned_args, passed_args)
@@ -130,6 +131,8 @@ class Guard():
 		>>> foo(1, 2, 3, 4)
 		"""
 		all_types = list(self._types) + list(self._kwtypes.values())
+		
+		
 		for enforced_type in all_types:
 			if not isinstance(enforced_type, (type, list)):
 				raise(ValueError(f"guard constructor not properly called!"))
@@ -157,7 +160,6 @@ class Guard():
 
 		>>> foo(1, 2, 'Hello World!')
 		"""
-
 		for param, enforced_type in scanned_args.items():
 			if enforced_type is not None:
 			# check if Guard is accepting multiple types for one parameter
