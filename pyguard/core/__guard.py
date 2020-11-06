@@ -4,7 +4,7 @@ from functools import wraps
 from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
 from pyguard.core.allinstance import allinstance
 
-class Guard():
+class Guard:
 	def __init__(self, *types, **kwtypes):
 		"""
 		See __validate_constructor() for examples of valid and invalid inputs. 
