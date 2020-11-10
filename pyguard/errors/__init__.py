@@ -3,7 +3,7 @@ class ArgumentIncongruityWarning(Warning):
 	ArgumentIncongruityWarning (subclass of Warning) is raised when number 
 	of type arguments do not match the function's number of parameters. 
 	This could mean both enforcing more types than there are parameters, or 
-	vice versa.
+	less types than there are parameters.
 	"""
 	def __init__(self, func_name, type_count, arg_count):
 		if type_count > arg_count:
@@ -33,17 +33,17 @@ class InvalidArgumentError(TypeError):
 		)
 
 	def __create_str(self, x):
-		if isinstance(x, list):
-			x = [f"'{i.__name__}'" for i in x]
+		if isinstance(x, tuple):
+			x = [i.__name__ for i in x]
 			if len(x) == 1:
-				return f"{x[0]}"
+				return f"'{x[0]}'"
 			elif len(x) == 2:
-				return f"{x[0]} or {x[1]}"
+				return f"'{x[0]}' or '{x[1]}'"
 			else:
-				listed = ', '.join([i for i in x[0:-1]])
-				return f"{listed}, or {x[-1]}"
+				listed = ",' ".join([f"'{i}" for i in x[0:-1]])
+				return f"{listed},' or '{x[-1]}'"
 		else:
-			return s.__name__
+			return f"'{x.__name__}'"
 
 	def __str__(self):
 		return self.error
