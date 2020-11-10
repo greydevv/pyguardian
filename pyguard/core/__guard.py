@@ -13,26 +13,6 @@ class Guard:
 		self._kwtypes = kwtypes
 		self.__validate_constructor()
 
-	def __call__(self, func):
-		"""
-		__call__() is implemented to allow the Guard decoration of methods and 
-		is therefore called when the decorated method is called.
-		"""
-		@wraps(func)
-		def decor(*args, **kwargs):
-			argspec = getfullargspec(func)
-			print(argspec)
-			passed_args = {k:v for k,v in zip(argspec.args, list(args))}
-			scanned_args = self.__scanargs(passed_args)
-			self.__validate(scanned_args, passed_args)
-
-			type_count = len(list(self._types) + list(self._kwtypes))
-			if type_count != len(argspec.args):
-				warnings.warn(ArgumentIncongruityWarning(func.__name__, type_count, len(argspec.args)), stacklevel=2)
-
-			return func(*args, **kwargs)
-		return decor
-
 	def __validate_constructor(self):
 		"""
 		__validate_constructor() is implemented to validate the passed *types 
@@ -40,8 +20,8 @@ class Guard:
 
 		Parameters
 		----------
-		*types   : type, [type]
-		**kwtypes: type, [type]
+		*types   : type, (type,)
+		**kwtypes: type, (type,)
 
 
 		Examples
@@ -57,11 +37,11 @@ class Guard:
 
 
 
-		A list of 'type' passed signifies multiple valid types for one 
-		parameter. In this case, parameter 'c' can either be of type 'int' or 
-		'float.'
+		A tuple filled with elements of type 'type' passed signifies multiple 
+		valid types for one parameter. In this case, parameter 'c' can either 
+		be of type 'int' or 'float.'
 
-		>>> @guard(int, int, [int, float])
+		>>> @guard(int, int, (int, float))
 		>>> def foo(a, b, c):
 
 		>>> foo(1, 2, 3)
@@ -94,8 +74,8 @@ class Guard:
 
 
 
-		Only types and lists of types may be passed to the constructor.	When 
-		called, this method will raise an exception: "ValueError: guard 
+		Only types and tuples of types may be passed to the constructor.	
+		When called, this method will raise an exception: "ValueError: guard 
 		constructor not properly called!"
 
 		>>> @guard(int, int, 'foo')
@@ -132,14 +112,32 @@ class Guard:
 		"""
 		all_types = list(self._types) + list(self._kwtypes.values())
 		
-		
 		for enforced_type in all_types:
-			if not isinstance(enforced_type, (type, list)):
+			if not isinstance(enforced_type, (type, tuple)):
 				raise(ValueError(f"guard constructor not properly called!"))
-			elif isinstance(enforced_type, list):
+			elif isinstance(enforced_type, tuple):
 				if not allinstance(enforced_type, type) or len(enforced_type) == 0:
 					raise(ValueError(f"guard constructor not properly called!"))
 
+	def __call__(self, func):
+		"""
+		__call__() is implemented to allow the Guard decoration of methods and 
+		is therefore called when the decorated method is called.
+		"""
+		@wraps(func)
+		def decor(*args, **kwargs):
+			func_params = getfullargspec(func).args
+			passed_args = {k:v for k,v in zip(func_params, args)}
+
+			scanned_args = self.__scanargs(passed_args)
+			self.__validate(scanned_args, passed_args)
+
+			type_count = len(self._types) + len(self._kwtypes)
+			if type_count != len(func_params):
+				warnings.warn(ArgumentIncongruityWarning(func.__name__, type_count, len(func_params)), stacklevel=2)
+
+			return func(*args, **kwargs)
+		return decor
 
 
 	def __validate(self, scanned_args, passed_args):
@@ -162,14 +160,17 @@ class Guard:
 		"""
 		for param, enforced_type in scanned_args.items():
 			if enforced_type is not None:
-			# check if Guard is accepting multiple types for one parameter
-				if isinstance(enforced_type, list):
-					# check if type is not of any of the types that were passed as a list
-					if not isinstance(passed_args[param], tuple(enforced_type)):
-						raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
-				else:
-					if not isinstance(passed_args[param], enforced_type):
-						raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+				# because 'bool' is a subclass of 'int,' it won't fail if 'True' or 'False' is passed while 'int' is enforced
+				if isinstance(passed_args[param], bool):
+					if isinstance(enforced_type, tuple):
+						if bool not in enforced_type:
+							raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+					elif enforced_type != bool:
+							raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+
+				if not isinstance(passed_args[param], enforced_type):
+					raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+
 
 	def __scanargs(self, passed_args):
 		"""
@@ -178,21 +179,19 @@ class Guard:
 		A dictionary will is returned with the method's parameters as the keys 
 		and the enforced type on each of those parameters as the value.
 		"""
-		specified_kw = (passed_args.keys() & self._kwtypes.keys())
+		specified_kw = passed_args.keys() & self._kwtypes.keys()
 		scanned_args = {k:None for k in passed_args}
-		
-		# scan for keywords first
-		for k in passed_args:
-			if k in specified_kw:
+		for k in specified_kw:
+			if k in passed_args:
 				scanned_args[k] = self._kwtypes[k]
-
-		# create temporary list to remove 
-		temp = list(self._types)
-		for k in scanned_args:
+		idx = 0
+		for k in scanned_args.keys():
+			if idx > len(self._types)-1:
+				break
 			if scanned_args[k] is None:
-				if len(temp) > 0:
-					scanned_args[k] = temp[0]
-					temp.remove(temp[0])
+				scanned_args[k] = self._types[idx]
+				idx += 1
+
 		return scanned_args
 
 
