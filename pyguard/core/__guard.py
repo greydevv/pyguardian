@@ -191,19 +191,3 @@ class Guard:
 				idx += 1
 
 		return scanned_args
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
