@@ -26,7 +26,7 @@ The method below, `foo`, only takes one parameter `x`. By passing `int` into the
 def foo(x):
 	...
 ```
-Multiple types for one parameter may also be specified via a `tuple`:
+Multiple types for one parameter may also be specified by passing a `tuple`:
 ```python
 @guard((int, float))
 def foo(x):
@@ -97,17 +97,3 @@ import warnings
 
 warnings.filterwarnings("ignore")
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
