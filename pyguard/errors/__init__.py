@@ -26,10 +26,10 @@ class InvalidArgumentError(TypeError):
 	InvalidArgumentError (subclass of TypeError) is raised when the type of 
 	a value passed to a guarded method does not match the enforced type.
 	"""
-	def __init__(self, param, enforced_type, given_type):
-		enforced_str = self.__create_str(enforced_type)
+	def __init__(self, func, param, enforced_type, given_type):
+		enforced_type = self.__create_str(enforced_type)
 		self.error = (
-			f"Expected parameter '{param}' to be of type {enforced_str} but found '{given_type}'"
+			f"'{func.__qualname__}' expects parameter '{param}' to be of type {enforced_type} but found '{given_type}'"
 		)
 
 	def __create_str(self, x):
