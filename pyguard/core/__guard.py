@@ -18,14 +18,13 @@ class Guard:
 		__call__() is implemented to allow the Guard decoration of methods and 
 		is therefore called when the decorated method is called.
 		"""
+		self.func = func
 		@wraps(func)
 		def decor(*args, **kwargs):
 			func_params = getfullargspec(func).args
 			passed_args = {k:v for k,v in zip(func_params, args)}
-
 			scanned_args = self.__scanargs(passed_args)
 			self.__validate(scanned_args, passed_args)
-
 			type_count = len(self._types) + len(self._kwtypes)
 			if type_count != len(func_params):
 				warnings.warn(ArgumentIncongruityWarning(func.__name__, type_count, len(func_params)), stacklevel=2)
@@ -163,12 +162,12 @@ class Guard:
 				if isinstance(passed_args[param], bool):
 					if isinstance(enforced_type, tuple):
 						if bool not in enforced_type:
-							raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+							raise(InvalidArgumentError(self.func, param, enforced_type, type(passed_args[param]).__name__))
 					elif enforced_type != bool:
-							raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+							raise(InvalidArgumentError(self.func, param, enforced_type, type(passed_args[param]).__name__))
 
 				if not isinstance(passed_args[param], enforced_type):
-					raise(InvalidArgumentError(param, enforced_type, type(passed_args[param]).__name__))
+					raise(InvalidArgumentError(self.func, param, enforced_type, type(passed_args[param]).__name__))
 
 
 	def __scanargs(self, passed_args):
