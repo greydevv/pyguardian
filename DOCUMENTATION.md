@@ -40,21 +40,21 @@ When guarding methods defined inside of a class, `object` must be the first argu
 class Foo:
 	@guard(object, int)
 	def __init__(self, x):
-		pass
+		...
 
 	@guard(object, str)
 	def bar(self, x):
-		pass
+		...
 
 	@classmethod
 	@guard(object, float)
 	def baz(cls, x):
-		pass
+		...
 
 	@staticmethod
 	@guard(list)
 	def qux(x):
-		pass
+		...
 ```
 
 ### InvalidArgumentError
