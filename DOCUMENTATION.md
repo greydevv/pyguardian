@@ -1,0 +1,73 @@
+# pyguard docs
+
+## Getting started
+Currently, pyguard is still in development but will be made available on the Python Packaging Index in the future.
+
+## Usage
+
+To access the guard decorator, it must be imported first:
+```python
+from pyguard import guard
+```
+
+The guard decorator's signature is as follows:
+```python
+@guard(*types, **kwtypes)
+```
+The constructor only accepts items of type `type` and `tuple`. If a `tuple` is passed, it must also only contain items of type `type`. If illegal values are passed to the constructor, a `ValueError` is raised with the message:
+```
+guard constructor not properly called!
+```
+
+The method below, `foo`, only takes one parameter `x`. By passing `int` into the guard decorator, it will force `x` to be of type `int`.
+```python
+@guard(int)
+def foo(x):
+	...
+
+foo(1)   # valid call
+foo("a") # invalid call
+```
+If a value of type `int` is passed to the guarded method, `foo`, the method will execute normally. If a value not of type `int` is passed, i.e. `str`, an `InvalidArgumentError` is raised:
+```
+'foo' expects parameter 'x' to be of type 'int' but found 'str'
+```
+Multiple types for one parameter may also be specified via a `tuple`:
+```python
+@guard((int, float))
+def foo(x):
+	...
+
+foo(1)   # valid call
+foo(1.2) # valid call
+```
+If there is an incongruence in the number of enforced types and parameters, an `ArgumentIncongruityWarning` will appear:
+```python
+@guard(int, str)
+def foo(x):
+	...
+```
+```
+Enforcing 2 types while only 1 arguments exists. 
+```
+```python
+@guard(int)
+def foo(x, y):
+	...
+```
+```
+Enforcing only 1 type while 2 arguments exist. Defined method, 'foo,' may produce unexpected results.
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
