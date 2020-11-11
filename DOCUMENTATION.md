@@ -35,6 +35,27 @@ def foo(x):
 foo(1)   # valid call
 foo(1.2) # valid call
 ```
+When guarding methods defined inside of a class, `object` must be the first argument passed to the guard statement for instance and class methods. `object` does not need to be passed to static methods.
+```python
+class Foo:
+	@guard(object, int)
+	def __init__(self, x):
+		pass
+
+	@guard(object, str)
+	def bar(self, x):
+		pass
+
+	@classmethod
+	@guard(object, float)
+	def baz(cls, x):
+		pass
+
+	@staticmethod
+	@guard(list)
+	def qux(x):
+		pass
+```
 
 ### InvalidArgumentError
 
@@ -50,7 +71,6 @@ foo("a") # invalid call
 ```
 'foo' expects parameter 'x' to be of type 'int' but found 'str'
 ```
-
 
 ### ArgumentIncongruityWarning
 
@@ -70,6 +90,12 @@ def foo(x, y):
 ```
 ```
 Enforcing only 1 type while 2 arguments exist. Defined method, 'foo,' may produce unexpected results.
+```
+Warnings may be silenced via the `warning` module:
+```python
+import warnings
+
+warnings.filterwarnings("ignore")
 ```
 
 
