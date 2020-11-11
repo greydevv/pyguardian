@@ -1,5 +1,5 @@
 import warnings
-from inspect import getfullargspec, signature
+from inspect import getfullargspec
 from functools import wraps
 from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
 from pyguard.core.allinstance import allinstance
@@ -12,6 +12,26 @@ class Guard:
 		self._types = types
 		self._kwtypes = kwtypes
 		self.__validate_constructor()
+
+	def __call__(self, func):
+		"""
+		__call__() is implemented to allow the Guard decoration of methods and 
+		is therefore called when the decorated method is called.
+		"""
+		@wraps(func)
+		def decor(*args, **kwargs):
+			func_params = getfullargspec(func).args
+			passed_args = {k:v for k,v in zip(func_params, args)}
+
+			scanned_args = self.__scanargs(passed_args)
+			self.__validate(scanned_args, passed_args)
+
+			type_count = len(self._types) + len(self._kwtypes)
+			if type_count != len(func_params):
+				warnings.warn(ArgumentIncongruityWarning(func.__name__, type_count, len(func_params)), stacklevel=2)
+
+			return func(*args, **kwargs)
+		return decor
 
 	def __validate_constructor(self):
 		"""
@@ -118,27 +138,6 @@ class Guard:
 			elif isinstance(enforced_type, tuple):
 				if not allinstance(enforced_type, type) or len(enforced_type) == 0:
 					raise(ValueError(f"guard constructor not properly called!"))
-
-	def __call__(self, func):
-		"""
-		__call__() is implemented to allow the Guard decoration of methods and 
-		is therefore called when the decorated method is called.
-		"""
-		@wraps(func)
-		def decor(*args, **kwargs):
-			func_params = getfullargspec(func).args
-			passed_args = {k:v for k,v in zip(func_params, args)}
-
-			scanned_args = self.__scanargs(passed_args)
-			self.__validate(scanned_args, passed_args)
-
-			type_count = len(self._types) + len(self._kwtypes)
-			if type_count != len(func_params):
-				warnings.warn(ArgumentIncongruityWarning(func.__name__, type_count, len(func_params)), stacklevel=2)
-
-			return func(*args, **kwargs)
-		return decor
-
 
 	def __validate(self, scanned_args, passed_args):
 		"""
