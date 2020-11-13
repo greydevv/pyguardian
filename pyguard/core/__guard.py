@@ -47,15 +47,28 @@ class Guard:
 			return func(*args, **kwargs)
 		return decor
 
-	def __apply_types(self, passed):
+	def __apply_types(self, passed_values):
 		"""
 		'__apply_types' is implemented for format the arguments and parameters in 
 		a way that allows other methods to use the data easily and efficiently. 
 		A dictionary is returned with the method's parameters as the keys 
 		and the enforced type on each of those parameters as the value.
 		"""
-		base = {k:None for k in passed}
-		enforced_kwds = passed & self._kwtypes.keys()
+		base = {k:None for k in passed_values}
+		enforced_kwds = passed_values & self._kwtypes.keys()
+
+		type_count = len(self._types) + len(self._kwtypes)
+		param_count = len(passed_values)
+		if type_count != param_count:
+			warnings.warn(
+				ArgumentIncongruityWarning(
+					func = self.func,
+					type_count = type_count,
+					param_count = param_count
+				),
+				stacklevel = 3
+			)
+
 
 		# apply keywords first
 		for k in enforced_kwds:
@@ -96,18 +109,18 @@ class Guard:
 				illegal_type = find_illegal(param["value"], param["enforced_type"])
 				if illegal_type:
 					raise(InvalidArgumentError(
-						func=self.func, 
-						param_name=param["name"], 
-						enforced_type=param["enforced_type"], 
-						passed_type=illegal_type
+						func = self.func, 
+						param_name = param["name"], 
+						enforced_type = param["enforced_type"], 
+						passed_type = illegal_type
 					))
 			else:
 				if not isinstance(param["value"], param["enforced_type"]):
 					raise(InvalidArgumentError(
-						func=self.func, 
-						param_name=param["name"], 
-						enforced_type=param["enforced_type"], 
-						passed_type=type(param["value"])
+						func = self.func, 
+						param_name = param["name"], 
+						enforced_type = param["enforced_type"], 
+						passed_type = type(param["value"])
 					))
 
 	def __validate_constructor(self):
