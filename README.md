@@ -1,7 +1,7 @@
 # pyguard
 
 ## Description
-pyguard is a Python library that enables parameter validations via simple and clean function decoration.
+pyguard is a Python library that enables parameter validation via simple and clean function decoration.
 
 ## Installation
 Currently, pyguard is still in development but will be made available on the Python Packaging Index in the future.
