@@ -5,16 +5,16 @@ class ArgumentIncongruityWarning(Warning):
 	This could mean both enforcing more types than there are parameters, or 
 	fewer types than there are parameters.
 	"""
-	def __init__(self, func, type_count, arg_count):
-		if type_count > arg_count:
+	def __init__(self, func, type_count, param_count):
+		if type_count > param_count:
 			self.msg = (
 			f"Enforcing {type_count} {'type' if type_count == 1 else 'types'} "
-			f"while only {arg_count} {'argument exists' if arg_count == 1 else 'arguments exist'}. "
+			f"while only {param_count} {'argument exists' if param_count == 1 else 'arguments exist'}. "
 			)
-		elif type_count < arg_count:
+		elif type_count < param_count:
 			self.msg = (
 			f"Enforcing only {type_count} {'type' if type_count == 1 else 'types'} "
-			f"while {arg_count} {'argument exists' if arg_count == 1 else 'arguments exist'}. "
+			f"while {param_count} {'argument exists' if param_count == 1 else 'arguments exist'}. "
 			f"Defined method, '{func.__qualname__},' may produce unexpected results."
 			)
 
