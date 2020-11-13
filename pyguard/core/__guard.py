@@ -1,8 +1,10 @@
 import warnings
-from inspect import getfullargspec
+import inspect
 from functools import wraps
 from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
 from pyguard.core.allinstance import allinstance
+from pyguard.core.findillegals import findillegals
+from pyguard.core.__sig import get_param_kinds
 
 class Guard:
 	def __init__(self, *types, **kwtypes):
@@ -21,16 +23,77 @@ class Guard:
 		self.func = func
 		@wraps(func)
 		def decor(*args, **kwargs):
-			func_params = getfullargspec(func).args
-			passed_args = {k:v for k,v in zip(func_params, args)}
-			scanned_args = self.__scanargs(passed_args)
-			self.__validate(scanned_args, passed_args)
-			type_count = len(self._types) + len(self._kwtypes)
-			if type_count != len(func_params):
-				warnings.warn(ArgumentIncongruityWarning(func, type_count, len(func_params)), stacklevel=2)
+			sig = inspect.signature(func)
+			argu = sig.bind(*args, **kwargs)
+			argu.apply_defaults()
+
+			passed_values = dict(argu.arguments)
+			enforced_types = self.__apply_types(passed_values)
+			param_kinds = get_param_kinds(sig)
+
+			compiled_params = []
+			for param in passed_values:
+				if enforced_types[param] is not None:
+					compiled_param = {
+						"name": param,
+						"value": passed_values[param],
+						"enforced_type": enforced_types[param],
+						"kind": param_kinds[param]
+					}
+					compiled_params.append(compiled_param)
+
+			self.__validate_func(compiled_params)
 
 			return func(*args, **kwargs)
 		return decor
+
+	def __apply_types(self, passed):
+		base = {k:None for k in passed}
+		enforced_kwds = passed & self._kwtypes.keys()
+
+		# apply keywords first
+		for k in enforced_kwds:
+			base[k] = self._kwtypes[k]
+
+		# apply types to rest, from left to right
+		idx = 0
+		for k in base.keys():
+			if idx > len(self._types)-1:
+				break
+			if base[k] is None:
+				base[k] = self._types[idx]
+				idx += 1
+
+		return base
+
+	def __validate_func(self, compiled_params):
+		for param in compiled_params:
+			if param["kind"] == "VAR_POSITIONAL": # *args, parse tuple
+				if not allinstance(param["value"], param["enforced_type"]):
+					illegal = findillegals(param["value"], param["enforced_type"])
+					raise(InvalidArgumentError(
+						func=self.func, 
+						param_name=param["name"], 
+						enforced_type=param["enforced_type"], 
+						passed_type=illegal
+					))
+			elif param["kind"] == "VAR_KEYWORD":  # **kwargs, parse dict
+				if not allinstance(param["value"].values(), param["enforced_type"]):
+					illegal = findillegals(param["value"], param["enforced_type"])
+					raise(InvalidArgumentError(
+						func=self.func, 
+						param_name=param["name"], 
+						enforced_type=param["enforced_type"], 
+						passed_type=illegal
+					))
+			else:
+				if not isinstance(param["value"], param["enforced_type"]):
+					raise(InvalidArgumentError(
+						func=self.func, 
+						param_name=param["name"], 
+						enforced_type=param["enforced_type"], 
+						passed_type=type(param["value"])
+					))
 
 	def __validate_constructor(self):
 		"""
@@ -132,7 +195,7 @@ class Guard:
 		all_types = list(self._types) + list(self._kwtypes.values())
 		
 		for enforced_type in all_types:
-			if not isinstance(enforced_type, (type, tuple)):
+			if not isinstance(enforced_type, (type, tuple)) and enforced_type is not None:
 				raise(ValueError(f"guard constructor not properly called!"))
 			elif isinstance(enforced_type, tuple):
 				if not allinstance(enforced_type, type) or len(enforced_type) == 0:
