@@ -1,4 +1,9 @@
 def findillegals(collection, valid_type):
+	"""
+	'findillegals' is a helper method that returns the type of the first 
+	item contained within a collection that does not match the specified 
+	type.
+	"""
 	if isinstance(collection, dict):
 			collection = collection.values()
 

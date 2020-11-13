@@ -48,6 +48,12 @@ class Guard:
 		return decor
 
 	def __apply_types(self, passed):
+		"""
+		'__apply_types' is implemented for format the arguments and parameters in 
+		a way that allows other methods to use the data easily and efficiently. 
+		A dictionary is returned with the method's parameters as the keys 
+		and the enforced type on each of those parameters as the value.
+		"""
 		base = {k:None for k in passed}
 		enforced_kwds = passed & self._kwtypes.keys()
 
@@ -67,8 +73,26 @@ class Guard:
 		return base
 
 	def __validate_func(self, compiled_params):
+		"""
+		'__validate_func' is implemented to validate the types of the parameters 
+		passed to the method against the enforced types passed to the Guard 
+		constructor. 
+		
+		Examples
+		--------
+
+		If the types of the parameters passed to the method do not match their 
+		enforced type, an exception is raised: "InvalidArgumentError: 'foo' 
+		expects parameter "c" to be of type "int" but found "str""
+
+		>>> @guard(int, int, int)
+		>>> def foo(a, b, c):
+
+		>>> foo(1, 2, 'Hello World!')
+
+		"""
 		for param in compiled_params:
-			if param["kind"] in ["VAR_POSITIONAL", "VAR_KEYWORD"]: # *args, parse tuple
+			if param["kind"] in ["VAR_POSITIONAL", "VAR_KEYWORD"]: # *args or **kwargs, parse tuple or dict respectively
 				illegal_type = findillegals(param["value"], param["enforced_type"])
 				if illegal_type:
 					raise(InvalidArgumentError(
@@ -182,6 +206,7 @@ class Guard:
 		>>> def foo(a, b, c, d):
 
 		>>> foo(1, 2, 3, 4)
+
 		"""
 		all_types = list(self._types) + list(self._kwtypes.values())
 		
@@ -191,57 +216,3 @@ class Guard:
 			elif isinstance(enforced_type, tuple):
 				if not allinstance(enforced_type, type) or len(enforced_type) == 0:
 					raise(ValueError(f"guard constructor not properly called!"))
-
-	def __validate(self, scanned_args, passed_args):
-		"""
-		'__validate' is implemented to validate the types of the parameters 
-		passed to the method against the enforced types passed to the Guard 
-		constructor. 
-		
-		Examples
-		--------
-
-		If the types of the parameters passed to the method do not match their 
-		enforced type, an exception is raised: "InvalidArgumentError: 'foo' 
-		expects parameter "c" to be of type "int" but found "str""
-
-		>>> @guard(int, int, int)
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 'Hello World!')
-		"""
-		for param, enforced_type in scanned_args.items():
-			if enforced_type is not None:
-				# because 'bool' is a subclass of 'int,' it won't fail if 'True' or 'False' is passed while 'int' is enforced
-				if isinstance(passed_args[param], bool):
-					if isinstance(enforced_type, tuple):
-						if bool not in enforced_type:
-							raise(InvalidArgumentError(self.func, param, enforced_type, type(passed_args[param]).__name__))
-					elif enforced_type != bool:
-							raise(InvalidArgumentError(self.func, param, enforced_type, type(passed_args[param]).__name__))
-
-				if not isinstance(passed_args[param], enforced_type):
-					raise(InvalidArgumentError(self.func, param, enforced_type, type(passed_args[param]).__name__))
-
-
-	def __scanargs(self, passed_args):
-		"""
-		'__scanargs' is implemented for format the arguments and parameters in 
-		a way that allows other methods to use the data easily and efficiently. 
-		A dictionary will is returned with the method's parameters as the keys 
-		and the enforced type on each of those parameters as the value.
-		"""
-		specified_kw = passed_args.keys() & self._kwtypes.keys()
-		scanned_args = {k:None for k in passed_args}
-		for k in specified_kw:
-			if k in passed_args:
-				scanned_args[k] = self._kwtypes[k]
-		idx = 0
-		for k in scanned_args.keys():
-			if idx > len(self._types)-1:
-				break
-			if scanned_args[k] is None:
-				scanned_args[k] = self._types[idx]
-				idx += 1
-
-		return scanned_args
