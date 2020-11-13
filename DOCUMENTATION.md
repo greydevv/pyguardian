@@ -88,7 +88,7 @@ def foo(x):
 	...
 ```
 ```
-Enforcing 2 types while only 1 arguments exists. 
+Enforcing 2 types while only 1 argument exists. 
 ```
 ```python
 @guard(int)
