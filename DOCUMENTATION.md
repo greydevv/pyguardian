@@ -10,6 +10,11 @@ To access the guard decorator, it must be imported first:
 from pyguard import guard
 ```
 
+## Contents
+- [guard](https://github.com/greysonDEV/pytyper/blob/master/DOCUMENTATION.md#guard)
+- [ArgumentIncongruityWarning](https://github.com/greysonDEV/pytyper/blob/master/DOCUMENTATION.md#argumentincongruitywarning)
+- [InvalidArgumentError](https://github.com/greysonDEV/pytyper/blob/master/DOCUMENTATION.md#invalidargumenterror)
+
 ### guard
 
 The guard decorator's signature is as follows:
@@ -35,7 +40,7 @@ def foo(x):
 foo(1)   # valid call
 foo(1.2) # valid call
 ```
-When guarding methods defined inside of a class, `object` must be the first argument passed to the guard statement for instance and class methods. `object` does not need to be passed to static methods.
+When guarding methods defined inside of a class, `object` must be the first argument passed to the guard decorator for instance and class methods. `object` does not need to be passed to static methods.
 ```python
 class Foo:
 	@guard(object, int)
@@ -57,19 +62,21 @@ class Foo:
 		...
 ```
 
-### InvalidArgumentError
-
-If a value of type `int` is passed to the guarded method, `foo`, the method will execute normally. If a value not of type `int` is passed, i.e. `str`, an `InvalidArgumentError` is raised:
+Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works almost identically to specifying types for other parameters. The obvious difference is that the unpacking operator, `*`/`**`, should not be passed to the guard decorator when specifying types via keyword.
 ```python
-@guard(int)
-def foo(x):
+@guard(args=int)
+def foo(*args, **kwargs):
 	...
 
-foo(1)   # valid call
-foo("a") # invalid call
-```
-```
-'foo' expects parameter 'x' to be of type 'int' but found 'str'
+foo(1, 2)    # valid call
+foo(1, True) # invalid call
+
+@guard(kwargs=int)
+def foo(**kwargs):
+	...
+
+foo(a="Hello", b="World") # valid call
+foo(a=1, b="World")       # invalid call
 ```
 
 ### ArgumentIncongruityWarning
@@ -96,4 +103,19 @@ Warnings may be silenced via the `warning` module:
 import warnings
 
 warnings.filterwarnings("ignore")
+```
+
+### InvalidArgumentError
+
+If a value of type `int` is passed to the guarded method, `foo`, the method will execute normally. If a value not of type `int` is passed, i.e. `str`, an `InvalidArgumentError` is raised:
+```python
+@guard(int)
+def foo(x):
+	...
+
+foo(1)   # valid call
+foo("a") # invalid call
+```
+```
+'foo' expects parameter 'x' to be of type 'int' but found 'str'
 ```
