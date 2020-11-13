@@ -11,9 +11,9 @@ from pyguard import guard
 ```
 
 ## Contents
-- [guard](https://github.com/greysonDEV/pytyper/blob/master/DOCUMENTATION.md#guard)
-- [ArgumentIncongruityWarning](https://github.com/greysonDEV/pytyper/blob/master/DOCUMENTATION.md#argumentincongruitywarning)
-- [InvalidArgumentError](https://github.com/greysonDEV/pytyper/blob/master/DOCUMENTATION.md#invalidargumenterror)
+- [guard](https://github.com/greysonDEV/pyguard/blob/master/DOCUMENTATION.md#guard)
+- [ArgumentIncongruityWarning](https://github.com/greysonDEV/pyguard/blob/master/DOCUMENTATION.md#argumentincongruitywarning)
+- [InvalidArgumentError](https://github.com/greysonDEV/pyguard/blob/master/DOCUMENTATION.md#invalidargumenterror)
 
 ### guard
 
