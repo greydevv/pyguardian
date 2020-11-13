@@ -68,23 +68,14 @@ class Guard:
 
 	def __validate_func(self, compiled_params):
 		for param in compiled_params:
-			if param["kind"] == "VAR_POSITIONAL": # *args, parse tuple
-				if not allinstance(param["value"], param["enforced_type"]):
-					illegal = findillegals(param["value"], param["enforced_type"])
+			if param["kind"] in ["VAR_POSITIONAL", "VAR_KEYWORD"]: # *args, parse tuple
+				illegal_type = findillegals(param["value"], param["enforced_type"])
+				if illegal_type:
 					raise(InvalidArgumentError(
 						func=self.func, 
 						param_name=param["name"], 
 						enforced_type=param["enforced_type"], 
-						passed_type=illegal
-					))
-			elif param["kind"] == "VAR_KEYWORD":  # **kwargs, parse dict
-				if not allinstance(param["value"].values(), param["enforced_type"]):
-					illegal = findillegals(param["value"], param["enforced_type"])
-					raise(InvalidArgumentError(
-						func=self.func, 
-						param_name=param["name"], 
-						enforced_type=param["enforced_type"], 
-						passed_type=illegal
+						passed_type=illegal_type
 					))
 			else:
 				if not isinstance(param["value"], param["enforced_type"]):
