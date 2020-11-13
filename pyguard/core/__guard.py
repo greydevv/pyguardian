@@ -2,8 +2,8 @@ import warnings
 import inspect
 from functools import wraps
 from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
-from pyguard.core.allinstance import allinstance
-from pyguard.core.findillegals import findillegals
+from pyguard.core.all_instance import all_instance
+from pyguard.core.find_illegal import find_illegal
 from pyguard.core.__sig import get_param_kinds
 
 class Guard:
@@ -93,7 +93,7 @@ class Guard:
 		"""
 		for param in compiled_params:
 			if param["kind"] in ["VAR_POSITIONAL", "VAR_KEYWORD"]: # *args or **kwargs, parse tuple or dict respectively
-				illegal_type = findillegals(param["value"], param["enforced_type"])
+				illegal_type = find_illegal(param["value"], param["enforced_type"])
 				if illegal_type:
 					raise(InvalidArgumentError(
 						func=self.func, 
@@ -214,5 +214,5 @@ class Guard:
 			if not isinstance(enforced_type, (type, tuple)) and enforced_type is not None:
 				raise(ValueError(f"guard constructor not properly called!"))
 			elif isinstance(enforced_type, tuple):
-				if not allinstance(enforced_type, type) or len(enforced_type) == 0:
+				if not all_instance(enforced_type, type) or len(enforced_type) == 0:
 					raise(ValueError(f"guard constructor not properly called!"))
