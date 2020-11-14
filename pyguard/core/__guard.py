@@ -1,7 +1,7 @@
 import warnings
 import inspect
 from functools import wraps
-from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError
+from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError, UnknownKeywordArgumentWarning
 from pyguard.core.all_instance import all_instance
 from pyguard.core.find_illegal import find_illegal
 from pyguard.core.__sig import get_param_kinds
@@ -54,9 +54,6 @@ class Guard:
 		A dictionary is returned with the method's parameters as the keys 
 		and the enforced type on each of those parameters as the value.
 		"""
-		base = {k:None for k in passed_values}
-		enforced_kwds = passed_values & self._kwtypes.keys()
-
 		type_count = len(self._types) + len(self._kwtypes)
 		param_count = len(passed_values)
 		if type_count != param_count:
@@ -69,21 +66,34 @@ class Guard:
 				stacklevel = 3
 			)
 
-
+		applied = {k:None for k in passed_values}
 		# apply keywords first
-		for k in enforced_kwds:
-			base[k] = self._kwtypes[k]
+		unknowns = []
+		for param in self._kwtypes.keys():
+			if passed_values.get(param):
+				applied[param] = self._kwtypes[param]
+			else:
+				unknowns.append(param)
+
+		if len(unknowns) > 0:
+			warnings.warn(
+				UnknownKeywordArgumentWarning(
+					func = self.func,
+					unknown_keywords = unknowns
+				),
+				stacklevel = 3
+			)
 
 		# apply types to rest, from left to right
 		idx = 0
-		for k in base.keys():
+		for k in applied.keys():
 			if idx > len(self._types)-1:
 				break
-			if base[k] is None:
-				base[k] = self._types[idx]
+			if applied[k] is None:
+				applied[k] = self._types[idx]
 				idx += 1
 
-		return base
+		return applied
 
 	def __validate_func(self, compiled_params):
 		"""
