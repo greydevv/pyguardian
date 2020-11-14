@@ -13,6 +13,7 @@ from pyguard import guard
 ## Contents
 - [guard](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#guard)
 - [ArgumentIncongruityWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#argumentincongruitywarning)
+- [UnkonwnKeywordArgumentWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#unknownkeywordargumentwarning)
 - [InvalidArgumentError](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#invalidargumenterror)
 
 ### guard
@@ -81,6 +82,8 @@ foo(a=1, b="World")       # invalid call
 
 ### ArgumentIncongruityWarning
 
+`ArgumentIncongruityWarning` is a subclass of `Warning`.
+
 If there is an incongruence in the number of enforced types and parameters, an `ArgumentIncongruityWarning` will appear:
 ```python
 @guard(int, str)
@@ -105,7 +108,23 @@ import warnings
 warnings.filterwarnings("ignore")
 ```
 
+### UnknownKeywordArgumentWarning
+
+`UnknownKeywordArgumentWarning` is a subclass of `Warning`.
+
+If there is an unknown keyword passed to the guard decorator, an `UnknownKeywordArgumentWarning` will appear:
+```python
+@guard(y=int)
+def foo(x):
+	...
+```
+```
+Argument 'y' does not exist in defined method, 'foo.' This may produce unexpected results.
+```
+
 ### InvalidArgumentError
+
+`InvalidArgumentError` is a subclass of `TypeError`.
 
 If a value of type `int` is passed to the guarded method, `foo`, the method will execute normally. If a value not of type `int` is passed, i.e. `str`, an `InvalidArgumentError` is raised:
 ```python
