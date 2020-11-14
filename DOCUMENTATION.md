@@ -87,7 +87,7 @@ class Foo:
 Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works almost identically to specifying types for other parameters. The obvious difference is that the unpacking operator, `*`/`**`, should not be passed to the guard decorator when specifying types via keyword.
 ```python
 @guard(args=int)
-def foo(*args, **kwargs):
+def foo(*args):
 	...
 
 foo(1, 2)    # valid call
@@ -99,6 +99,13 @@ def foo(**kwargs):
 
 foo(a="Hello", b="World") # valid call
 foo(a=1, b="World")       # invalid call
+
+@guard(int, str)
+def foo(*args, **kwargs):
+	...
+
+foo(1, 2, a="Hello", b="World") # valid call
+foo(1, 2, a="Hello", b=1.2)     # invalid call
 ```
 
 ### ArgumentIncongruityWarning
