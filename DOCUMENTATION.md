@@ -31,6 +31,9 @@ The method below, `foo`, only takes one parameter `x`. By passing `int` into the
 @guard(int)
 def foo(x):
 	...
+
+foo(1)             # valid call
+foo("Hello World") # invalid call
 ```
 Multiple types for one parameter may also be specified by passing a `tuple`:
 ```python
