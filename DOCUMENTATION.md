@@ -13,7 +13,7 @@ from pyguard import guard
 ## Contents
 - [guard](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#guard)
 - [ArgumentIncongruityWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#argumentincongruitywarning)
-- [UnkonwnKeywordArgumentWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#unknownkeywordargumentwarning)
+- [UnknownKeywordArgumentWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#unknownkeywordargumentwarning)
 - [InvalidArgumentError](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#invalidargumenterror)
 
 ### guard
