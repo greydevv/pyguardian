@@ -22,7 +22,7 @@ The guard decorator's signature is as follows:
 ```python
 @guard(*types, **kwtypes)
 ```
-The constructor only accepts items of type `type` and `tuple`. If a `tuple` is passed, it must also only contain items of type `type`. If illegal values are passed to the constructor, a `ValueError` is raised with the message:
+The constructor only accepts items of type `type`, `NoneType` and `tuple`. If a `tuple` is passed, it must also only contain items of type `type`. If illegal values are passed to the constructor, a `ValueError` is raised with the message:
 ```
 guard constructor not properly called!
 ```
@@ -40,6 +40,24 @@ def foo(x):
 
 foo(1)   # valid call
 foo(1.2) # valid call
+```
+Passing `NoneType` to the guard decorator specifies that the function accepts any type for that parameter.
+```python
+@guard(None)
+def foo(x):
+	...
+
+foo("Hello World") # valid call
+foo([1,2,3])       # valid call
+```
+However, `NoneType` cannot be passed via a tuple when specifying multiple types for a parameter.
+```python
+@guard((int, None))
+def foo(x):
+	...
+```
+```
+guard constructor not properly called!
 ```
 When guarding methods defined inside of a class, `object` must be the first argument passed to the guard decorator for instance and class methods. `object` does not need to be passed to static methods.
 ```python
