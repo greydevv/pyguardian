@@ -27,7 +27,7 @@ class Guard:
 			argu = sig.bind(*args, **kwargs)
 			argu.apply_defaults()
 
-			passed_values = dict(argu.arguments)
+			passed_values = argu.arguments
 			enforced_types = self.__apply_types(passed_values)
 			param_kinds = get_param_kinds(sig)
 
