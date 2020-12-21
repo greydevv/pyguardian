@@ -11,8 +11,8 @@ class Guard:
 		"""
 		See '__validate_constructor' for examples of valid and invalid inputs. 
 		"""
-		self._types = types
-		self._kwtypes = kwtypes
+		self.types = self.__replace_none(types)
+		self.kwtypes = self.__replace_none(kwtypes)
 		self.__validate_constructor()
 
 	def __call__(self, func):
@@ -46,6 +46,34 @@ class Guard:
 
 			return func(*args, **kwargs)
 		return decor
+
+	@staticmethod
+	def __replace_none(iterable):
+		"""
+		Replaces instances of 'None' with 'NoneType' in the iterable argument. 
+		Instances of 'None' that are contained inside a nested iterable are also replaced.
+
+		Parameters:
+		iterable -- the iterable containing 'None'
+
+		Examples:
+		>>> __replace_none((str, None))
+		(str, NoneType)
+
+		>>> __replace_none((str, (int, None)))
+		(str, (int, NoneType))
+		"""
+		if isinstance(iterable, dict):
+			for idx, (name, classinfo) in enumerate(iterable.items()):
+				if isinstance(classinfo, (list, tuple)) and None in classinfo:
+					iterable[name] = tuple(type(None) if t is None else t for t in classinfo)
+		else:
+			for idx, classinfo in enumerate(iterable):
+				if isinstance(classinfo, (list, tuple)) and None in classinfo:
+					iterable[idx] = tuple(type(None) if t is None else t for t in classinfo)
+				elif classinfo is None:
+					iterable[idx] = type(None)
+		return iterable
 
 	def __apply_types(self, passed_values):
 		"""
