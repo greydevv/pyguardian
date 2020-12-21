@@ -1,10 +1,7 @@
 import warnings
 import inspect
 from functools import wraps
-from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentTypeError, UnknownKeywordArgumentWarning
-from pyguard.core.all_instance import all_instance
-from pyguard.core.find_illegal import find_illegal
-from pyguard.core.__sig import get_param_kinds
+from pyguard.errors import InvalidArgumentTypeError, UnknownKeywordArgumentWarning
 
 class Guard:
 	def __init__(self, *types, **kwtypes):
