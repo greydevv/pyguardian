@@ -27,4 +27,9 @@ setup(
 		"License :: OSI Approved :: MIT License",
 	],
 	python_requires=">=3.6",
+	extras_require={
+		"dev":[
+			"pytest=6.1.2"
+		]
+	}
 )
