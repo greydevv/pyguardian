@@ -12,9 +12,8 @@ from pyguard import guard
 
 ## Contents
 - [guard](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#guard)
-- [ArgumentIncongruityWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#argumentincongruitywarning)
 - [UnknownKeywordArgumentWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#unknownkeywordargumentwarning)
-- [InvalidArgumentError](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#invalidargumenterror)
+- [InvalidArgumentTypeError](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#invalidargumenttypeerror)
 
 ### guard
 
@@ -22,11 +21,11 @@ The guard decorator's signature is as follows:
 ```python
 @guard(*types, **kwtypes)
 ```
-The constructor only accepts items of type `type`, `NoneType` and `tuple`. If a `tuple` is passed, it must also only contain items of type `type`. If illegal values are passed to the constructor, a `ValueError` is raised with the message:
+The constructor accepts items of type `type`, `NoneType` and `list`/`tuple` containing elements of type `type`. If an invalid argument is passed to the constructor, a `ValueError` is raised with the message:
 ```
 guard constructor not properly called!
 ```
-The method below, `foo`, only takes one parameter `x`. By passing `int` into the guard decorator, it will force `x` to be of type `int`.
+The method below takes one parameter, `x`. By passing `int` to the guard decorator, `x` now only accepts a value of type `int`.
 ```python
 @guard(int)
 def foo(x):
@@ -35,7 +34,7 @@ def foo(x):
 foo(1)             # valid call
 foo("Hello World") # invalid call
 ```
-Multiple types for one parameter may also be specified by passing a `tuple`:
+Multiple types for one parameter may also be specified by passing a `list` or a `tuple` containing elements of type `type`:
 ```python
 @guard((int, float))
 def foo(x):
@@ -44,23 +43,20 @@ def foo(x):
 foo(1)   # valid call
 foo(1.2) # valid call
 ```
-Passing `NoneType` to the guard decorator specifies that the function accepts any type for that parameter.
+By not enforcing a type on a parameter, that parameter will then accept a value of any type.
 ```python
-@guard(None)
-def foo(x):
+@guard(int)
+def foo(x, y):
 	...
 
-foo("Hello World") # valid call
-foo([1,2,3])       # valid call
+foo(1, "Hello World") # valid call
+foo(1, True)          # valid call
 ```
-However, `NoneType` cannot be passed via a tuple when specifying multiple types for a parameter.
+Note that the below is also accepted but not encouraged as the constructor accepts `None` by itself.
 ```python
-@guard((int, None))
+@guard((int, type(None)))
 def foo(x):
 	...
-```
-```
-guard constructor not properly called!
 ```
 When guarding methods defined inside of a class, `object` must be the first argument passed to the guard decorator for instance and class methods. `object` does not need to be passed to static methods.
 ```python
@@ -83,7 +79,7 @@ class Foo:
 	def qux(x):
 		...
 ```
-Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works almost identically to specifying types for other parameters. The obvious difference is that the unpacking operator, `*`/`**`, should not be passed to the guard decorator when specifying types via keyword.
+Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works almost identically to specifying types for other parameters. The obvious difference is that the unpacking operator (`*`/`**`) should not be passed to the guard decorator when specifying types via keyword.
 ```python
 @guard(args=int)
 def foo(*args):
@@ -107,51 +103,29 @@ foo(1, 2, a="Hello", b="World") # valid call
 foo(1, 2, a="Hello", b=1.2)     # invalid call
 ```
 
-### ArgumentIncongruityWarning
-
-`ArgumentIncongruityWarning` is a subclass of `Warning`.
-
-If there is an incongruence in the number of enforced types and parameters, an `ArgumentIncongruityWarning` will appear:
-```python
-@guard(int, str)
-def foo(x):
-	...
-```
-```
-Enforcing 2 types while only 1 argument exists. 
-```
-```python
-@guard(int)
-def foo(x, y):
-	...
-```
-```
-Enforcing only 1 type while 2 arguments exist. Defined method, 'foo,' may produce unexpected results.
-```
-Warnings may be silenced via the `warning` module:
-```python
-import warnings
-
-warnings.filterwarnings("ignore")
-```
-
 ### UnknownKeywordArgumentWarning
 
 `UnknownKeywordArgumentWarning` is a subclass of `Warning`.
 
-If there is an unknown keyword passed to the guard decorator, an `UnknownKeywordArgumentWarning` will appear:
+If there is an unknown keyword passed to the guard decorator, an `UnknownKeywordArgumentWarning` is raised:
 ```python
 @guard(y=int)
 def foo(x):
 	...
 ```
 ```
-Argument 'y' does not exist in defined method, 'foo.' This may produce unexpected results.
+UnknownKeywordArgumentWarning: guard constructor received unknown keyword argument 'y' which may produce unexpected results as this argument will not be applied.
 ```
 
-### InvalidArgumentError
+```python
+import warnings
 
-`InvalidArgumentError` is a subclass of `TypeError`.
+warnings.filterwarnings("ignore")
+```
+
+### InvalidArgumentTypeError
+
+`InvalidArgumentTypeError` is a subclass of `TypeError`.
 
 If a value of type `int` is passed to the guarded method, `foo`, the method will execute normally. If a value not of type `int` is passed, i.e. `str`, an `InvalidArgumentError` is raised:
 ```python
@@ -163,5 +137,5 @@ foo(1)   # valid call
 foo("a") # invalid call
 ```
 ```
-'foo' expects parameter 'x' to be of type 'int' but found 'str'
+InvalidArgumentTypeError: 'foo' expects value of type 'int' for parameter 'x' but got 'str'
 ```
