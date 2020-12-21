@@ -75,6 +75,34 @@ class Guard:
 					iterable[idx] = type(None)
 		return iterable
 
+	@staticmethod
+	def __allinstance(iterable, classinfo, return_illegal=False):
+		"""
+		'__allisntance' is responsible for scanning the elements of an iterable and verifying that all of those elements are of the specified type.
+		
+		Parameters:
+		iterable       -- the iterable to scan
+		classinfo      -- the type or class to check against
+		return_illegal -- if True, the first element that is not an instance or direct/virtual subclass of is additionally returned
+
+		Examples:
+		>>> __allinstance([1, 2, 3], int, False)
+		True
+		
+		>>> __allinstance([1, 2, 3], int, True)
+		True, None
+
+		>>> __allinstance([1, 2.1, 3], int, True)
+		False, 2.1
+		"""
+		if return_illegal:
+			for e in iterable:
+				if not isinstance(e, classinfo):
+					return False, e
+			return True, None
+		else:
+			return all(isinstance(e, classinfo) for e in iterable)
+
 	def __apply_types(self, passed_values):
 		"""
 		'__apply_types' is implemented for format the arguments and parameters in 
