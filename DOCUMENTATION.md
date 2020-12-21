@@ -80,7 +80,7 @@ class Foo:
     def qux(x):
         ...
 ```
-Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works almost identically to specifying types for other parameters. The obvious difference is that the unpacking operator (`*`/`**`) should not be passed to the guard decorator when specifying types via keyword.
+Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works identically to specifying types for other parameters. The obvious difference is that the unpacking operator (`*`/`**`) should not be passed to the guard decorator when specifying types via keyword.
 ```python
 @guard(args=int)
 def foo(*args):
