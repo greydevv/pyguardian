@@ -1,21 +1,21 @@
-def list_to_string(lst):
+def item_to_string(item):
 	"""
-	Creates a gramatically correct string from an lst.
+	Creates a gramatically correct string from an item.
 
 	Parameters:
-	lst -- the list that provides the elements for string construction
+	item -- the item that provides the element(s) for string construction
 
 	Examples:
-	>>> list_to_string(["apples", "oranges", "bananas"])
+	>>> item_to_string(["apples", "oranges", "bananas"])
 	"'apples', 'oranges', or 'bananas'"
 	"""
-	if isinstance(lst, (list, tuple)):
-		if len(lst) == 1:
-			return f"'{lst[0]}'"
-		elif len(lst) == 2:
-			return f"'{lst[0]}' or '{lst[1]}'"
+	if isinstance(item, (list, tuple)):
+		if len(item) == 1:
+			return f"'{item[0]}'"
+		elif len(item) == 2:
+			return f"'{item[0]}' or '{item[1]}'"
 		else:
-			listed = ", ".join(f"'{e}'" for e in lst[0:-1])
-			return f"{listed}, or '{lst[-1]}'"
+			listed = ", ".join(f"'{e}'" for e in item[0:-1])
+			return f"{listed}, or '{item[-1]}'"
 	else:
-		return f"'{lst}'"
+		return f"'{item}'"
