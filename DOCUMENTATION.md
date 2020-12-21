@@ -30,7 +30,7 @@ The method below takes one parameter, `x`. By passing `int` to the guard decorat
 ```python
 @guard(int)
 def foo(x):
-	...
+    ...
 
 foo(1)             # valid call
 foo("Hello World") # invalid call
@@ -39,7 +39,7 @@ Multiple types for one parameter may also be specified by passing a `list` or a 
 ```python
 @guard((int, float))
 def foo(x):
-	...
+    ...
 
 foo(1)   # valid call
 foo(1.2) # valid call
@@ -48,7 +48,7 @@ By not enforcing a type on a parameter, that parameter will then accept a value 
 ```python
 @guard(int)
 def foo(x, y):
-	...
+    ...
 
 foo(1, "Hello World") # valid call
 foo(1, True)          # valid call
@@ -57,48 +57,48 @@ Note that the below is also accepted but not encouraged as the constructor accep
 ```python
 @guard((int, type(None)))
 def foo(x):
-	...
+    ...
 ```
 When guarding methods defined inside of a class, `object` must be the first argument passed to the guard decorator for instance and class methods. `object` does not need to be passed to static methods.
 ```python
 class Foo:
-	@guard(object, int)
-	def __init__(self, x):
-		...
+    @guard(object, int)
+    def __init__(self, x):
+        ...
 
-	@guard(object, str)
-	def bar(self, x):
-		...
+    @guard(object, str)
+    def bar(self, x):
+        ...
 
-	@classmethod
-	@guard(object, float)
-	def baz(cls, x):
-		...
+    @classmethod
+    @guard(object, float)
+    def baz(cls, x):
+        ...
 
-	@staticmethod
-	@guard(list)
-	def qux(x):
-		...
+    @staticmethod
+    @guard(list)
+    def qux(x):
+        ...
 ```
 Guarding functions that take an arbitrary number of parameters, i.e. `*args` and `**kwargs`, works almost identically to specifying types for other parameters. The obvious difference is that the unpacking operator (`*`/`**`) should not be passed to the guard decorator when specifying types via keyword.
 ```python
 @guard(args=int)
 def foo(*args):
-	...
+    ...
 
 foo(1, 2)    # valid call
 foo(1, True) # invalid call
 
 @guard(kwargs=int)
 def foo(**kwargs):
-	...
+    ...
 
 foo(a="Hello", b="World") # valid call
 foo(a=1, b="World")       # invalid call
 
 @guard(int, str)
 def foo(*args, **kwargs):
-	...
+    ...
 
 foo(1, 2, a="Hello", b="World") # valid call
 foo(1, 2, a="Hello", b=1.2)     # invalid call
@@ -112,7 +112,7 @@ If there is an unknown keyword passed to the guard decorator, an `UnknownKeyword
 ```python
 @guard(y=int)
 def foo(x):
-	...
+    ...
 ```
 ```
 UnknownKeywordArgumentWarning: guard constructor received unknown keyword argument 'y' which may produce unexpected results as this argument will not be applied.
@@ -132,7 +132,7 @@ If a value of type `int` is passed to the guarded method, `foo`, the method will
 ```python
 @guard(int)
 def foo(x):
-	...
+    ...
 
 foo(1)   # valid call
 foo("a") # invalid call
