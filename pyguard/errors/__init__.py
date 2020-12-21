@@ -1,1 +1,1 @@
-from pyguard.errors.errors import InvalidArgumentTypeError, UnknwonKeywordArgumentWarning
+from pyguard.errors.errors import InvalidArgumentTypeError, UnknownKeywordArgumentWarning
