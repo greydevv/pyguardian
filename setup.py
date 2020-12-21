@@ -10,10 +10,13 @@ setup(
 	author_email="greysonmurray.dev@gmail.com",
 	maintainer="Greyson Murray",
 	maintainer_email="greysonmurray.dev@gmail.com",
+	license="MIT",
 	description="pyguard simplifies parameter type validation",
 	long_description=long_description,
 	url="https://github.com/greysonDEV/pyguard",
 	packages=["pyguard"],
+	zip_safe=False,
+	include_package_data=True,
 	classifiers=[
 		"Programming Language :: Python",
 		"Programming Language :: Python :: 3",
