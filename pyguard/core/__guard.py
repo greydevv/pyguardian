@@ -1,12 +1,14 @@
-import warnings
-import inspect
 from functools import wraps
-from pyguard.errors import InvalidArgumentTypeError, UnknownKeywordArgumentWarning
+import inspect
+import warnings
+import pyguard.errors
 
 class Guard:
 	def __init__(self, *types, **kwtypes):
 		"""
-		See '__validate_constructor' for examples of valid and invalid inputs. 
+		Parameters:
+		types   -- the accepted types for each argument (positional) 
+		kwtypes -- the accepted types for each argument (keyword)
 		"""
 		self.types = self.__replace_none(types)
 		self.kwtypes = self.__replace_none(kwtypes)
@@ -14,35 +16,170 @@ class Guard:
 
 	def __call__(self, func):
 		"""
-		'__call__' is implemented to allow the Guard decoration of methods and 
-		is therefore called when the decorated method is called.
+		Entry point of validation. Therefore, this method is called when the guarded method is called.
+
+		Parameters:
+		func -- the guarded function
 		"""
 		self.func = func
 		@wraps(func)
-		def decor(*args, **kwargs):
+		def wrapper(*func_args, **func_kwargs):
 			sig = inspect.signature(func)
-			argu = sig.bind(*args, **kwargs)
-			argu.apply_defaults()
 
-			passed_values = argu.arguments
-			enforced_types = self.__apply_types(passed_values)
-			param_kinds = get_param_kinds(sig)
+			# raise warning if constructor received keyword argument that is not a parameter in the guarded method
+			# cannot be placed in '__validate_constructor' because 'func' and 'func_kwargs' are only available on method call
+			unknown_keywords = [k for k in self.kwtypes if func_kwargs.get(k) is None]
+			if len(unknown_keywords) > 0:
+				warnings.warn(
+						errors.UnknownKeywordArgumentWarning(
+								func=self.func,
+								unknown_keywords=unknown_keywords
+							),
+						stacklevel=2
+					)
 
-			compiled_params = []
-			for param in passed_values:
-				if enforced_types[param] is not None:
-					compiled_param = {
-						"name": param,
-						"value": passed_values[param],
-						"enforced_type": enforced_types[param],
-						"kind": param_kinds[param]
-					}
-					compiled_params.append(compiled_param)
-
+			compiled_params = self.__compile_params(sig, *func_args, **func_kwargs)
 			self.__validate_func(compiled_params)
 
-			return func(*args, **kwargs)
-		return decor
+			return func(*func_args, **func_kwargs)
+		return wrapper
+
+	def __compile_params(self, sig, *func_args, **func_kwargs):
+		"""
+		Compiles the function parameters and their respective types into a dictionary for further processing.
+		The output of this function is generally passed to '__validate_func' via its 'compiled_params' argument for validation.
+	
+		Parameters:
+		func_params -- a list of the items (as tuples) in an ordered dictionary ('OrderedDict') with the parameter name and its value as each respective item
+
+		Examples:
+		>>> func_params = OrderedDict([('a', 1), ('b', True), ('c', 2)])
+		>>> __compile_params(func_params)
+		{
+			'a': (1, <class 'int'>, 'POSITIONAL_OR_KEYWORD'), 
+			'b': (True, <class 'bool'>, 'POSITIONAL_OR_KEYWORD'), 
+			'c': (2, <class 'str'>, 'POSITIONAL_OR_KEYWORD')
+		}		
+		"""
+		argu = sig.bind(*func_args, **func_kwargs)
+		argu.apply_defaults()
+		param_kinds = {name:str(param.kind) for name, param in sig.parameters.items()}
+
+		compiled_params = {}
+		idx = 0
+		for name,value in argu.arguments.items():
+			# assign type to parameter by keyword first
+			if self.kwtypes.get(name):
+				compiled_params[name] = (value, self.kwtypes.get(name), param_kinds[name])
+			else:
+				# if type was not specified by keyword, assign the next type that was specified via positional argument
+				try:
+					compiled_params[name] = (value, self.types[idx], param_kinds[name])
+					idx += 1
+				# assign 'ANY_TYPE' if there are no types left to assign
+				except IndexError:
+					# 'ANY_TYPE' denotes that the passed value can be of any type
+					# 'None' could not be used for this because 'None' is a specifiable type
+					compiled_params[name] = (value, "ANY_TYPE", param_kinds[name])
+
+		return compiled_params
+
+	def __validate_constructor(self):
+		"""
+		Validates the arguments passed into the 'guard' constructor.
+
+		Accepted arguments are positional and/or keyword arguments of type 'type' or 'NoneType'.
+		Arguments of type 'list' or 'tuple' which contain elements of type 'type' and/or 'NoneType' are also accepted.
+
+		The acceptance of 'NoneType' means the value 'None' itself is accepted. 
+		Because 'NoneType' is not directly accessible, 'None' is accepted to deter the passing of 'type(None)' to the constructor.
+		"""
+		all_types = list(self.types) + list(self.kwtypes.values())
+
+		for classinfo in all_types:
+			if not isinstance(classinfo, (type, tuple)) and classinfo is not None:
+				raise(ValueError(f"guard constructor not properly called!"))
+			elif isinstance(classinfo, (list, tuple)):
+				if not self.__allinstance(classinfo, type) or len(classinfo) == 0:
+					raise(ValueError(f"guard constructor not properly called!"))
+
+	def __validate_func(self, compiled_params):
+		"""
+		Raises an 'InvalidArgumentTypeError' if any passed value in 'compiled_params' is not an instance of the expected type.
+
+		Parameters:
+		compiled_params -- dictionary with necessary parameter info with parameter name as keys and value, expected type, and parameter kind as the values
+
+		Examples:
+		>>> compiled_params = {
+				'a': (1, <class 'int'>, 'POSITIONAL_OR_KEYWORD'), 
+				'b': (True, <class 'bool'>, 'POSITIONAL_OR_KEYWORD'), 
+				'c': (2, <class 'str'>, 'POSITIONAL_OR_KEYWORD')
+			}
+		>>> __validate_func(compiled_params)
+		Traceback (most recent call last):
+			...
+		errors.InvalidArgumentTypeError: 'foo' expects value of type 'str' for parameter 'c' but got 'int'
+		"""
+		illegal_type = None
+		for name,(value,classinfo,kind) in compiled_params.items():
+
+			# 'VAR_POSITIONAL' is an *args-like parameter 
+			# 'VAR_KEYWORD' is a **kwargs-like parameter
+			if kind == "VAR_POSITIONAL":
+				illegal_type = self.__find_invalid_type(value, classinfo, arbitrary_args_n=True)
+			elif kind == "VAR_KEYWORD":
+				illegal_type = self.__find_invalid_type(value.values(), classinfo, arbitrary_args_n=True)
+			else:
+				illegal_type = self.__find_invalid_type(value, classinfo)
+
+			# if 'illegal_type' is 'None' it means that the value passed for that parameter is valid
+			if illegal_type is not None:
+				raise errors.InvalidArgumentTypeError(
+						func=self.func,
+						param_name=name,
+						classinfo=classinfo,
+						passed_type=illegal_type
+					)
+
+	def __find_invalid_type(self, value, classinfo, arbitrary_args_n=False):
+		"""
+		Returns None if the parameter is valid, otherwise returns the type of the invalid parameter.
+
+		Parameters:
+		value            -- the name of the parameter
+		classinfo        -- the type or class to check against
+		arbitrary_args_n -- specifies whether the 'value' comes from *args-like or **kwargs-like parameters
+
+		Examples:
+		>>> __validate_param(1, str)
+		int
+
+		>>> # ('value' coming from function parameter *args or **kwargs)
+		>>> __validate_param((1,2,3), int, arbitrary_args_n=True)
+		None
+		"""
+		# 'bool' must be specifically checked for because it is a subclass of 'int'.
+		# Therefore, 'isinstance(True, int)' and 'isinstance(False, int)' return True which may not be intended.
+		if classinfo != "ANY_TYPE":
+			if arbitrary_args_n:
+				if any(isinstance(v, bool) for v in value):
+					if isinstance(classinfo, (list, tuple)) and bool not in classinfo:
+						return bool
+					elif classinfo != bool:
+						return bool
+
+				illegal_value = self.__allinstance(value, classinfo, return_illegal=True)[1]
+				if illegal_value:
+					return type(illegal_value)
+			else:
+				if isinstance(value, bool):
+					if isinstance(classinfo, (list, tuple)) and bool not in classinfo:
+						return bool
+					elif classinfo != bool:
+						return bool
+				elif not isinstance(value, classinfo):
+					return type(value)
 
 	@staticmethod
 	def __replace_none(iterable):
@@ -99,196 +236,3 @@ class Guard:
 			return True, None
 		else:
 			return all(isinstance(e, classinfo) for e in iterable)
-
-	def __apply_types(self, passed_values):
-		"""
-		'__apply_types' is implemented for format the arguments and parameters in 
-		a way that allows other methods to use the data easily and efficiently. 
-		A dictionary is returned with the method's parameters as the keys 
-		and the enforced type on each of those parameters as the value.
-		"""
-		type_count = len(self._types) + len(self._kwtypes)
-		param_count = len(passed_values)
-		if type_count != param_count:
-			warnings.warn(
-				ArgumentIncongruityWarning(
-					func = self.func,
-					type_count = type_count,
-					param_count = param_count
-				),
-				stacklevel = 3
-			)
-
-		applied = {k:None for k in passed_values}
-		# apply keywords first
-		unknowns = []
-		for param in self._kwtypes.keys():
-			if passed_values.get(param):
-				applied[param] = self._kwtypes[param]
-			else:
-				unknowns.append(param)
-
-		if len(unknowns) > 0:
-			warnings.warn(
-				UnknownKeywordArgumentWarning(
-					func = self.func,
-					unknown_keywords = unknowns
-				),
-				stacklevel = 3
-			)
-
-		# apply types to rest, from left to right
-		idx = 0
-		for k in applied.keys():
-			if idx > len(self._types)-1:
-				break
-			if applied[k] is None:
-				applied[k] = self._types[idx]
-				idx += 1
-
-		return applied
-
-	def __validate_func(self, compiled_params):
-		"""
-		'__validate_func' is implemented to validate the types of the parameters 
-		passed to the method against the enforced types passed to the Guard 
-		constructor. 
-		
-		Examples
-		--------
-
-		If the types of the parameters passed to the method do not match their 
-		enforced type, an exception is raised: "InvalidArgumentTypeError: 'foo' 
-		expects parameter "c" to be of type "int" but found "str""
-
-		>>> @guard(int, int, int)
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 'Hello World!')
-
-		"""
-		for param in compiled_params:
-			if param["kind"] in ["VAR_POSITIONAL", "VAR_KEYWORD"]: # *args or **kwargs, parse tuple or dict respectively
-				illegal_type = find_illegal(param["value"], param["enforced_type"])
-				if illegal_type:
-					raise(InvalidArgumentTypeError(
-						func = self.func, 
-						param_name = param["name"], 
-						enforced_type = param["enforced_type"], 
-						passed_type = illegal_type
-					))
-			else:
-				if not isinstance(param["value"], param["enforced_type"]):
-					raise(InvalidArgumentTypeError(
-						func = self.func, 
-						param_name = param["name"], 
-						enforced_type = param["enforced_type"], 
-						passed_type = type(param["value"])
-					))
-
-	def __validate_constructor(self):
-		"""
-		'__validate_constructor' is implemented to validate the passed *types 
-		and **kwtypes of the Guard class.
-
-		Parameters
-		----------
-		*types   : type, (type,)
-		**kwtypes: type, (type,)
-
-
-		Examples
-		--------
-		
-		Parameters 'a', 'b', and 'c' must be of type 'int', 'int', and 'int', 
-		respectively.
-
-		>>> @guard(int, int, int)
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 3)
-
-
-
-		A tuple filled with elements of type 'type' passed signifies multiple 
-		valid types for one parameter. In this case, parameter 'c' can either 
-		be of type 'int' or 'float.'
-
-		>>> @guard(int, int, (int, float))
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 3)
-		>>> foo(1, 2, 3.14159)
-	
-	
-
-		Types passed via keyword is also accepted, given that the keyword 
-		matches the name of a parameter that exists in the method's signature.
-
-		>>> @guard(a=int, b=int, c=int)
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 3)
-		
-
-
-		Similarly to the last example, a combination of both positional and 
-		keyworded arguments are able to be passed into the Guard constructor 
-		and will also support out-of-order type-enforcement. In this example, 
-		'a=str' enforces that the method's parameter 'a' must be of type 'str', 
-		even though it was specified as a keyword argument that follows 
-		multiple positional arguments. Both 'b' and 'c' will then be enforced 
-		to be of type 'int.'
-
-		>>> @guard(int, int, a=str):
-		>>> def foo(a, b, c):
-
-		>>> foo('Hello World!', 1, 2)
-
-
-
-		Only types and tuples of types may be passed to the constructor.	
-		When called, this method will raise an exception: "ValueError: guard 
-		constructor not properly called!"
-
-		>>> @guard(int, int, 'foo')
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 3)
-
-
-
-		A warning will be raised when the number of types passed to the Guard 
-		constructor is larger than the number of parameters in the method's 
-		signature. When the method is called, this warning is raised: 
-		"ArgumentIncongruityWarning: Enforcing 4 types while only 3 arguments 
-		exist."
-
-		>>> guard(int, int, int, str)
-		>>> def foo(a, b, c):
-
-		>>> foo(1, 2, 3)
-
-
-
-		Similarly to the last example, a warning will be raised when the number 
-		of parameters in the method's signature is larger than the number of 
-		types passed to the Guard constructor. When the method is called, this 
-		warning is raised: "ArgumentIncongruityWarning: Enforcing only 3 types 
-		while 4 arguments exist. Defined method, 'foo,' may produce unexpected 
-		results."
-
-		>>> guard(int, int, int)
-		>>> def foo(a, b, c, d):
-
-		>>> foo(1, 2, 3, 4)
-
-		"""
-		all_types = list(self._types) + list(self._kwtypes.values())
-		
-		for enforced_type in all_types:
-			if not isinstance(enforced_type, (type, tuple)) and enforced_type is not None:
-				raise(ValueError(f"guard constructor not properly called!"))
-			elif isinstance(enforced_type, tuple):
-				if not all_instance(enforced_type, type) or len(enforced_type) == 0:
-					raise(ValueError(f"guard constructor not properly called!"))
