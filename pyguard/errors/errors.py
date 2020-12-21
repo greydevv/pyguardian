@@ -1,4 +1,4 @@
-from pyguard.errors.grammar_formatting import list_to_string
+from pyguard.errors.grammar_formatting import item_to_string
 
 class InvalidArgumentTypeError(TypeError):
 	"""
@@ -12,7 +12,11 @@ class InvalidArgumentTypeError(TypeError):
 	passed_type -- the incorrect type
 	"""
 	def __init__(self, func, param_name, classinfo, passed_type):
-		classinfo = list_to_string([c.__name__ for c in classinfo])
+		if isinstance(classinfo, (list, tuple)):
+			classinfo = item_to_string([c.__name__ for c in classinfo])
+		else:
+			classinfo = item_to_string(classinfo.__name__)
+
 		self.err_msg = f"'{func.__qualname__}' expects value of type {classinfo} for parameter '{param_name}' but got '{passed_type.__name__}'"
 
 	def __str__(self):
