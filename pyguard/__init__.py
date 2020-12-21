@@ -1,1 +1,1 @@
-from pyguard.core.__guard import Guard as guard
+from pyguard.__guard import Guard as guard
