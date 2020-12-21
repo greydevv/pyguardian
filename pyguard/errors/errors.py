@@ -33,7 +33,7 @@ class UnknownKeywordArgumentWarning(Warning):
 	"""
 	def __init__(self, func, unknown_keywords):
 		plural = len(unknown_keywords) > 1
-		unknown_keywords = self.list_to_string(unknown_keywords)
+		unknown_keywords = item_to_string(unknown_keywords)
 		self.wrn_msg = f"guard constructor received unknown keyword {'arguments' if plural else 'argument'} {unknown_keywords} which may produce unexpected results as {'these arguments' if plural else 'this argument'} will not be applied."
 
 	def __str__(self):
