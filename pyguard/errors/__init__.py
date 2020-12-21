@@ -49,7 +49,7 @@ class UnknownKeywordArgumentWarning(Warning):
 	def __str__(self):
 		return self.msg
 
-class InvalidArgumentError(TypeError):
+class InvalidArgumentTypeError(TypeError):
 	"""
 	'InvalidArgumentError' (subclass of TypeError) is raised when the type of 
 	a value passed to a guarded method does not match the enforced type.

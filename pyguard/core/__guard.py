@@ -1,7 +1,7 @@
 import warnings
 import inspect
 from functools import wraps
-from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentError, UnknownKeywordArgumentWarning
+from pyguard.errors import ArgumentIncongruityWarning, InvalidArgumentTypeError, UnknownKeywordArgumentWarning
 from pyguard.core.all_instance import all_instance
 from pyguard.core.find_illegal import find_illegal
 from pyguard.core.__sig import get_param_kinds
@@ -161,7 +161,7 @@ class Guard:
 		--------
 
 		If the types of the parameters passed to the method do not match their 
-		enforced type, an exception is raised: "InvalidArgumentError: 'foo' 
+		enforced type, an exception is raised: "InvalidArgumentTypeError: 'foo' 
 		expects parameter "c" to be of type "int" but found "str""
 
 		>>> @guard(int, int, int)
@@ -174,7 +174,7 @@ class Guard:
 			if param["kind"] in ["VAR_POSITIONAL", "VAR_KEYWORD"]: # *args or **kwargs, parse tuple or dict respectively
 				illegal_type = find_illegal(param["value"], param["enforced_type"])
 				if illegal_type:
-					raise(InvalidArgumentError(
+					raise(InvalidArgumentTypeError(
 						func = self.func, 
 						param_name = param["name"], 
 						enforced_type = param["enforced_type"], 
@@ -182,7 +182,7 @@ class Guard:
 					))
 			else:
 				if not isinstance(param["value"], param["enforced_type"]):
-					raise(InvalidArgumentError(
+					raise(InvalidArgumentTypeError(
 						func = self.func, 
 						param_name = param["name"], 
 						enforced_type = param["enforced_type"], 
