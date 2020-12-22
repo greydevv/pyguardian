@@ -1,7 +1,7 @@
 # pyguardian
 
 ## Description
-pyguardian is a Python library that validates the types of a function's paraneters via the `guard decorator`:
+pyguardian is a Python library that validates the types of a function's parameters via the `guard decorator`:
 ```python
 @guard(int, int)
 def add(a, b):
