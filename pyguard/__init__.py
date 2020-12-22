@@ -1,1 +1,0 @@
-from pyguard.__guard import Guard as guard

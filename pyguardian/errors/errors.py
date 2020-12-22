@@ -1,4 +1,4 @@
-from pyguard.errors.grammar_formatting import item_to_string
+from pyguardian.errors.grammar_formatting import item_to_string
 
 class InvalidArgumentTypeError(TypeError):
 	"""

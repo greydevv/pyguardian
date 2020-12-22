@@ -4,17 +4,17 @@ with open("README.md", "r", encoding="utf-8") as fh:
 	long_description = fh.read()
 
 setup(
-	name="pyguard",
+	name="pyguardian",
 	version="0.0.1",
 	author="Greyson Murray",
 	author_email="greysonmurray.dev@gmail.com",
 	maintainer="Greyson Murray",
 	maintainer_email="greysonmurray.dev@gmail.com",
 	license="MIT",
-	description="pyguard simplifies parameter type validation",
+	description="pyguardian simplifies parameter type validation",
 	long_description=long_description,
-	url="https://github.com/greysonDEV/pyguard",
-	packages=["pyguard"],
+	url="https://github.com/greysonDEV/pyguardian",
+	packages=["pyguardian"],
 	zip_safe=False,
 	include_package_data=True,
 	classifiers=[
