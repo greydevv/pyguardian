@@ -5,7 +5,7 @@ pyguardian is a Python library that takes care parameter validation via function
 ```python
 @guard(int, int)
 def add(a, b):
-	return a+b
+    return a+b
 ```
 
 ## Installation
