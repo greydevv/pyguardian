@@ -9,7 +9,9 @@ def add(a, b):
 ```
 
 ## Installation
-Currently, pyguardian is still in development but will be made available on the Python Packaging Index in the future.
+```bash
+pip install pyguardian
+```
 
 ## Documentation
 [pyguardian documentation](https://github.com/greysonDEV/pyguardian/blob/master/DOCUMENTATION.md)
