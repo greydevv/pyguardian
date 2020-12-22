@@ -120,6 +120,7 @@ def foo(x):
 UnknownKeywordArgumentWarning: guard constructor received unknown keyword argument 'y' which may produce unexpected results as this argument will not be applied.
 ```
 
+It is possible to silence the warnings altogether:
 ```python
 import warnings
 
