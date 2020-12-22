@@ -1,19 +1,19 @@
-# pyguard docs
+# pyguardian docs
 
 ## Getting started
-Currently, pyguard is still in development but will be made available on the Python Packaging Index in the future.
+Currently, pyguardian is still in development but will be made available on the Python Packaging Index in the future.
 
 ## Contents
-- [Usage](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#usage)
-- [guard](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#guard)
-- [UnknownKeywordArgumentWarning](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#unknownkeywordargumentwarning)
-- [InvalidArgumentTypeError](https://github.com/greysonDEV/pyguard/blob/main/DOCUMENTATION.md#invalidargumenttypeerror)
+- [Usage](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#usage)
+- [guard](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#guard)
+- [UnknownKeywordArgumentWarning](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#unknownkeywordargumentwarning)
+- [InvalidArgumentTypeError](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#invalidargumenttypeerror)
 
 ### Usage
 
 To access the guard decorator, it must be imported first:
 ```python
-from pyguard import guard
+from pyguardian import guard
 ```
 
 ### guard
