@@ -39,7 +39,6 @@ class Guard:
 					)
 
 			compiled_params = self.__compile_params(sig, *func_args, **func_kwargs)
-			print(compiled_params)
 			self.__validate_func(compiled_params)
 
 			return func(*func_args, **func_kwargs)
@@ -144,7 +143,6 @@ class Guard:
 					)
 
 	def __find_invalid_type(self, value, classinfo, arbitrary_args_n=False):
-		print(value)
 		"""
 		Returns None if the parameter is valid, otherwise returns the type of the invalid parameter.
 
@@ -163,7 +161,6 @@ class Guard:
 		"""
 		# 'bool' must be specifically checked for because it is a subclass of 'int'.
 		# Therefore, 'isinstance(True, int)' and 'isinstance(False, int)' return True which may not be intended.
-		print(classinfo)
 		if classinfo != "ANY_TYPE":
 			if arbitrary_args_n:
 				if any(isinstance(v, bool) for v in value):
@@ -171,10 +168,8 @@ class Guard:
 						return bool
 					elif not isinstance(classinfo, (list, tuple)) and classinfo != bool:
 						return bool
-
 				illegal_value = self.__allinstance(value, classinfo, return_illegal=True)[1]
 				if illegal_value:
-					print("FOUND ILLEGAL VALUE")
 					return type(illegal_value)
 			else:
 				if isinstance(value, bool):
