@@ -1,7 +1,12 @@
 # pyguardian
 
 ## Description
-pyguardian is a Python library that enables parameter validation via simple and clean function decoration.
+pyguardian is a Python library that takes care parameter validation via function decoration:
+```python
+@guard(int, int)
+def add(a, b):
+	return a+b
+```
 
 ## Installation
 Currently, pyguardian is still in development but will be made available on the Python Packaging Index in the future.
