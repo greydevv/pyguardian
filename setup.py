@@ -13,6 +13,7 @@ setup(
 	license="MIT",
 	description="pyguardian simplifies parameter type validation",
 	long_description=long_description,
+	long_description_content_type="text/markdown",
 	url="https://github.com/greysonDEV/pyguardian",
 	packages=["pyguardian"],
 	zip_safe=False,
