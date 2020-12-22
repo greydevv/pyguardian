@@ -1,11 +1,5 @@
 # pyguardian docs
 
-## Getting started
-To install pyguardian, run this command from the console:
-```bash
-pip install pyguardian
-```
-
 ## Contents
 - [Usage](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#usage)
 - [guard](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#guard)
@@ -13,6 +7,11 @@ pip install pyguardian
 - [InvalidArgumentTypeError](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#invalidargumenttypeerror)
 
 ### Usage
+
+To install pyguardian, run this command from the console:
+```bash
+pip install pyguardian
+```
 
 To access the guard decorator, it must be imported first:
 ```python
