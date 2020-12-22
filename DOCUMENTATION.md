@@ -1,7 +1,7 @@
 # pyguardian docs
 
 ## Getting started
-To download pyguardian, run this command from the console:
+To install pyguardian, run this command from the console:
 ```bash
 pip install pyguardian
 ```
