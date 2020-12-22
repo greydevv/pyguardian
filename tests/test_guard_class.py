@@ -1,4 +1,4 @@
-from pyguard import guard
+from pyguardian import guard
 import pytest
 
 class TestClass:

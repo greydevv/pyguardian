@@ -1,5 +1,5 @@
-from pyguard import guard
-from pyguard.errors.errors import InvalidArgumentTypeError
+from pyguardian import guard
+from pyguardian.errors.errors import InvalidArgumentTypeError
 import pytest
 
 @guard(bool, int)

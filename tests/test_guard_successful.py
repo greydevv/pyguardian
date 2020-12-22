@@ -1,4 +1,4 @@
-from pyguard import guard
+from pyguardian import guard
 
 @guard(bool, int)
 def foo(a, b):
