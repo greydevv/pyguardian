@@ -1,7 +1,10 @@
 # pyguardian docs
 
 ## Getting started
-Currently, pyguardian is still in development but will be made available on the Python Packaging Index in the future.
+To download pyguardian, run this command from the console:
+```bash
+pip install pyguardian
+```
 
 ## Contents
 - [Usage](https://github.com/greysonDEV/pyguardian/blob/main/DOCUMENTATION.md#usage)
