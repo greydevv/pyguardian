@@ -10,8 +10,8 @@ class Guard:
 		types   -- the accepted types for each argument (positional) 
 		kwtypes -- the accepted types for each argument (keyword)
 		"""
-		self.types = self.__replace_none(types)
-		self.kwtypes = self.__replace_none(kwtypes)
+		self._types = self.__replace_none(types)
+		self._kwtypes = self.__replace_none(kwtypes)
 		self.__validate_constructor()
 
 	def __call__(self, func):
@@ -28,7 +28,7 @@ class Guard:
 
 			# raise warning if constructor received keyword argument that is not a parameter in the guarded method
 			# cannot be placed in '__validate_constructor' because 'func' and 'func_kwargs' are only available on method call
-			unknown_keywords = [k for k in self.kwtypes if func_kwargs.get(k) is None]
+			unknown_keywords = [k for k in self._kwtypes if func_kwargs.get(k) is None]
 			if len(unknown_keywords) > 0:
 				warnings.warn(
 						errors.UnknownKeywordArgumentWarning(
@@ -69,12 +69,12 @@ class Guard:
 		idx = 0
 		for name,value in argu.arguments.items():
 			# assign type to parameter by keyword first
-			if self.kwtypes.get(name):
-				compiled_params[name] = (value, self.kwtypes.get(name), param_kinds[name])
+			if self._kwtypes.get(name):
+				compiled_params[name] = (value, self._kwtypes.get(name), param_kinds[name])
 			else:
 				# if type was not specified by keyword, assign the next type that was specified via positional argument
 				try:
-					compiled_params[name] = (value, self.types[idx], param_kinds[name])
+					compiled_params[name] = (value, self._types[idx], param_kinds[name])
 					idx += 1
 				# assign 'ANY_TYPE' if there are no types left to assign
 				except IndexError:
@@ -94,7 +94,7 @@ class Guard:
 		The acceptance of 'NoneType' means the value 'None' itself is accepted. 
 		Because 'NoneType' is not directly accessible, 'None' is accepted to deter the passing of 'type(None)' to the constructor.
 		"""
-		all_types = list(self.types) + list(self.kwtypes.values())
+		all_types = list(self._types) + list(self._kwtypes.values())
 
 		for classinfo in all_types:
 			if not isinstance(classinfo, (type, tuple)) and classinfo is not None:
