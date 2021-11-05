@@ -1,7 +1,9 @@
-from contextlib import nullcontext as no_exception
 from pyguardian import guard
 from pyguardian.errors import InvalidArgumentTypeError, UnknownKeywordArgumentWarning
+from tests.ctx_managers import not_raises
 import pytest
+
+# Class to test
 
 class TestClass:
     __test__ = False
@@ -24,34 +26,39 @@ class TestClass:
     def tc_classmethod(cls, e):
         pass
 
+# Actual tests
+
 @pytest.fixture
 def tc():
     return TestClass(1, True)
 
 def test_initmethod():
-    tc = TestClass(1, True)
-    assert tc
+    with not_raises(InvalidArgumentTypeError):
+        tc = TestClass(1, True)
 
 def test_bad_initmethod():
     with pytest.raises(InvalidArgumentTypeError):
         tc = TestClass(1, "not an int")
 
 def test_instancemethod(tc):
-    tc.tc_instancemethod(1)
+    with not_raises(InvalidArgumentTypeError):
+        tc.tc_instancemethod(1)
 
 def test_bad_instancemethod(tc):
     with pytest.raises(InvalidArgumentTypeError):
         tc.tc_instancemethod("not an int")
 
 def test_staticmethod():
-    TestClass.tc_staticmethod(1)
+    with not_raises(InvalidArgumentTypeError):
+        TestClass.tc_staticmethod(1)
 
 def test_bad_staticmethod():
     with pytest.raises(InvalidArgumentTypeError):
         TestClass.tc_staticmethod("not an int")
 
 def test_classmethod():
-    TestClass.tc_classmethod(1)
+    with not_raises(InvalidArgumentTypeError):
+        TestClass.tc_classmethod(1)
 
 def test_bad_classmethod():
     with pytest.raises(InvalidArgumentTypeError):

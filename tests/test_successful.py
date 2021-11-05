@@ -1,57 +1,71 @@
 from pyguardian import guard
+from pyguardian.errors import InvalidArgumentTypeError
+from tests.ctx_managers import not_raises
+
+# Methods to test
 
 @guard(bool, int)
 def foo(a, b):
-	pass
+    pass
 
 @guard(bool, (int, float))
 def foo_multi(a, b):
-	pass
+    pass
 
 @guard(bool, int)
 def bar(a, *args):
-	pass
+    pass
 
 @guard(bool, (int, float))
 def bar_multi(a, *args):
-	pass
+    pass
 
 @guard(int, str)
 def baz(a, **kwargs):
-	pass
+    pass
 
 @guard(bool, (int, float))
 def baz_multi(a, **kwargs):
-	pass
+    pass
 
 @guard(int, str)
 def qux(*args, **kwargs):
-	pass
+    pass
 
 @guard((int, float), (bool, str))
 def qux_multi(*args, **kwargs):
-	pass
+    pass
+
+# Actual tests
 
 def test_foo():
-	assert foo(True, 1) == None
+    with not_raises(InvalidArgumentTypeError):
+        foo(True, 1)
 
 def test_foo_multi():
-	assert foo_multi(True, 1.2) == None
+    with not_raises(InvalidArgumentTypeError):
+        foo_multi(True, 1.2)
 
 def test_bar():
-	assert bar(True, 1, 2, 3, 4, 5) == None
+    with not_raises(InvalidArgumentTypeError):
+        bar(True, 1, 2, 3, 4, 5)
 
 def test_bar_multi():
-	assert bar_multi(True, 1, 2, 3.4, 4, 5.6) == None
+    with not_raises(InvalidArgumentTypeError):
+        bar_multi(True, 1, 2, 3.4, 4, 5.6)
 
 def test_baz():
-	assert baz(1, x="Hello", y="World") == None
+    with not_raises(InvalidArgumentTypeError):
+        baz(1, x="Hello", y="World")
 
 def test_baz_multi():
-	assert baz_multi(True, x=1, y=2.3, z=3) == None
+    with not_raises(InvalidArgumentTypeError):
+        baz_multi(True, x=1, y=2.3, z=3)
 
 def test_qux():
-	assert qux(1, 2, 3, x="Hello", y="World") == None
+    with not_raises(InvalidArgumentTypeError):
+        qux(1, 2, 3, x="Hello", y="World")
 
 def test_qux_multi():
-	assert qux_multi(1, 2.3, 4, 5.6, x=True, y="Hello") == None
+    with not_raises(InvalidArgumentTypeError):
+        qux_multi(1, 2.3, 4, 5.6, x=True, y="Hello")

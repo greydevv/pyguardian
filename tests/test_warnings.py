@@ -2,6 +2,8 @@ from pyguardian import guard
 from pyguardian.errors import UnknownKeywordArgumentWarning
 import pytest
 
+# Methods to test
+
 @guard(n=int)
 def foo():
     pass
@@ -17,6 +19,8 @@ def baz(**kwargs):
 @guard(int, n=int, b=int)
 def baz(a, b):
     pass
+
+# Actual tests
 
 def test_foo():
     with pytest.warns(UnknownKeywordArgumentWarning):
