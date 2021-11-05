@@ -1,7 +1,7 @@
 from functools import wraps
 import inspect
 import warnings
-from pyguardian.errors import errors
+from pyguardian import errors
 
 class Guard:
 	def __init__(self, *types, **kwtypes):
