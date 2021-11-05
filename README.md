@@ -9,10 +9,13 @@ from pyguardian import guard
 def add(a, b):
     return a+b
 
+# Successful call
 >>> add(1,2)
 3
+
+# Unseccessful call ("2" is not an integer!)
 >>> add(1,"2")
-pyguardian.errors.InvalidArgumentTypeError: 'add' expects value of type 'int' for parameter 'b' but got 'str'
+InvalidArgumentTypeError: 'add' expects value of type 'int' for parameter 'b' but got 'str'
 ```
 
 ## Installation
