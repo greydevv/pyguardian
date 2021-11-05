@@ -13,7 +13,7 @@ def add(a, b):
 >>> add(1,2)
 3
 
-# Unseccessful call ("2" is not an integer!)
+# Unsccessful call ("2" is not an integer!)
 >>> add(1,"2")
 InvalidArgumentTypeError: 'add' expects value of type 'int' for parameter 'b' but got 'str'
 ```
