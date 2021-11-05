@@ -21,7 +21,7 @@ pip install pyguardian
 ```
 
 ## Documentation
-[pyguardian documentation](https://github.com/greysonDEV/pyguardian/blob/master/DOCUMENTATION.md)
+[DOCUMENTATION.md](https://github.com/greysonDEV/pyguardian/blob/master/DOCUMENTATION.md)
 
 ## License
-pyguardian is licensed under the [MIT](https://github.com/greysonDEV/pyguardian/blob/master/LICENSE) License.
+*pyguardian* is licensed under the [MIT](https://github.com/greysonDEV/pyguardian/blob/master/LICENSE) License.
