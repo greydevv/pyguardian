@@ -1,3 +1,4 @@
 include *.md
 include LICENSE
-recursive-include pyguard *.py
+recursive-include pyguardian *.py
+recursive-include tests *.py
