@@ -1,4 +1,4 @@
-def item_to_string(item):
+def list_items(item):
 	"""
 	Creates a gramatically correct string from an item.
 
@@ -6,7 +6,7 @@ def item_to_string(item):
 	item -- the item that provides the element(s) for string construction
 
 	Examples:
-	>>> item_to_string(["apples", "oranges", "bananas"])
+	>>> list_items(["apples", "oranges", "bananas"])
 	"'apples', 'oranges', or 'bananas'"
 	"""
 	if isinstance(item, (list, tuple)):
