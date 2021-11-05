@@ -2,6 +2,8 @@ from pyguardian import guard
 from pyguardian.errors import InvalidArgumentTypeError
 import pytest
 
+# Methods to test
+
 @guard(bool, int)
 def foo_bad(a, b):
 	pass
@@ -33,6 +35,8 @@ def qux_bad(*args, **kwargs):
 @guard((int, float), (bool, str))
 def qux_multi_bad(*args, **kwargs):
 	pass
+
+# Actual tests
 
 def test_foo_bad():
 	with pytest.raises(InvalidArgumentTypeError):
