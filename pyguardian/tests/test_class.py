@@ -1,6 +1,6 @@
 from pyguardian import guard
 from pyguardian.errors import InvalidArgumentTypeError, UnknownKeywordArgumentWarning
-from tests.ctx_managers import not_raises
+from pyguardian.tests.ctx_managers import not_raises
 import pytest
 
 # Class to test

@@ -1,6 +1,6 @@
 from pyguardian import guard
 from pyguardian.errors import InvalidArgumentTypeError
-from tests.ctx_managers import not_raises
+from pyguardian.tests.ctx_managers import not_raises
 
 # Methods to test
 
